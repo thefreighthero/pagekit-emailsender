@@ -1,0 +1,20 @@
+{
+  "name": "bixie/emailsender",
+  "module": "bixie/emailsender",
+  "type": "pagekit-extension",
+  "version": "0.0.5",
+  "title": "Bixie Email Sender",
+  "description": "Send emails from your extensions.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Bixie",
+      "email": "info@bixie.org",
+      "homepage": "http://www.bixie.org"
+    }
+  ],
+  "extra": {
+    "icon": "icon.svg",
+    "scripts": "scripts.php"
+  }
+}
