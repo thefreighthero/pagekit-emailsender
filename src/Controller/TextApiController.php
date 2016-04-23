@@ -4,7 +4,7 @@ namespace Bixie\Emailsender\Controller;
 
 use Pagekit\Application as App;
 use Pagekit\Application\Exception;
-use Bixie\Emailsender\Model\Emailtext;
+use Bixie\Emailsender\Model\EmailText;
 
 /**
  * @Route("text", name="text")
@@ -17,7 +17,7 @@ class TextApiController {
 	 * @Request({"filter": "array", "page":"int"})
 	 */
 	public function indexAction ($filter = [], $page = 0) {
-		$query = Emailtext::query();
+		$query = EmailText::query();
 		$filter = array_merge(array_fill_keys(['type', 'order', 'limit'], ''), $filter);
 
 		extract($filter, EXTR_SKIP);
@@ -49,8 +49,8 @@ class TextApiController {
 	 */
 	public function saveAction ($data, $id = 0) {
 
-		if (!$text = Emailtext::find($id)) {
-			$text = Emailtext::create();
+		if (!$text = EmailText::find($id)) {
+			$text = EmailText::create();
 			unset($data['id']);
 		}
 		
@@ -70,7 +70,7 @@ class TextApiController {
 	 * @Request({"id": "int"}, csrf=true)
 	 */
 	public function deleteAction ($id) {
-		if ($text = Emailtext::find($id)) {
+		if ($text = EmailText::find($id)) {
 
 			$text->delete();
 		}

@@ -10,7 +10,7 @@ use Pagekit\User\Model\AccessModelTrait;
 /**
  * @Entity(tableClass="@emailsender_emailtext",eventPrefix="emailsender_emailtext")
  */
-class Emailtext implements \JsonSerializable {
+class EmailText implements \JsonSerializable {
 
 	use AccessModelTrait, DataModelTrait, ModelTrait;
 

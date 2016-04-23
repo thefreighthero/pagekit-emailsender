@@ -3,8 +3,7 @@
 namespace Bixie\Emailsender\Controller;
 
 use Pagekit\Application as App;
-use Pagekit\Kernel\Exception\NotFoundException;
-use Bixie\Emailsender\Model\Emailtext;
+use Bixie\Emailsender\Model\EmailText;
 use Pagekit\User\Model\Role;
 
 /**
@@ -21,10 +20,10 @@ class TextController {
 
 		App::get('emailtypes')->get('core.user.registration')->getKeys();
 
-		if (!$text = Emailtext::find($id)) {
+		if (!$text = EmailText::find($id)) {
 
 			if ($id == 0) {
-				$text = Emailtext::create();
+				$text = EmailText::create();
 			}
 
 		}
