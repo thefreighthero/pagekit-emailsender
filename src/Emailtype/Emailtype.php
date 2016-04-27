@@ -66,27 +66,29 @@ class Emailtype implements \JsonSerializable {
 	/**
 	 * @return array
 	 */
-	public function getVars () {
+	public function getVars ($flat = true) {
 		if (!isset($this->vars)) {
 			$this->vars = [];
 			foreach ($this->classes as $key => $class) {
-				if (class_exists($class) && method_exists($class, 'create')) {
-					$object = $class::create();
+				if (!isset($this->objects[$key]) && class_exists($class)) {
+					$object = method_exists($class, 'create') ? $class::create() : new $class();
 					$this->addObject($key, $object);
+				}
+				if (isset($this->objects[$key])) { 
 					//get data via jsonSerialize
-					$this->vars[$key] = json_decode(json_encode($object, JSON_NUMERIC_CHECK), true);
+					$this->vars[$key] = json_decode(json_encode($this->objects[$key], JSON_NUMERIC_CHECK), true);
 				}
 			}
 
 		}
-		return $this->vars;
+		return Arr::flatten($this->vars);
 	}
 
 	/**
 	 * @return mixed
 	 */
 	public function getKeys () {
-		return array_keys(Arr::flatten($this->getVars()));
+		return array_keys($this->getVars());
 	}
 
 	/**

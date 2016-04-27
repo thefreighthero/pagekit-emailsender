@@ -38,7 +38,9 @@ return [
 	],
 
 	'config' => [
-
+		'save_logs' => true,
+		'from_name' => '',
+		'from_email' => ''
 	],
 
 	'menu' => [
@@ -89,7 +91,7 @@ return [
 
 	],
 
-	'settings' => 'settings-emailsender',
+	'settings' => '@emailsender/settings',
 
 	'events' => [
 	]

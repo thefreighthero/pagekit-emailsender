@@ -89,6 +89,22 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 				</div>
 
 				<div class="uk-form-row">
+					<label for="text-from_name" class="uk-form-label">{{ 'From name' | trans }} *</label>
+					<div class="uk-form-controls">
+						<input id="text-from_name" name="from_name" class="uk-width-1-1" v-model="text.data.from_name" v-validate:required/>
+						<p class="uk-form-help-block uk-text-danger" v-show="form.from_name.invalid">{{ 'From name is required' | trans }}</p>
+					</div>
+				</div>
+
+				<div class="uk-form-row">
+					<label for="text-from_email" class="uk-form-label">{{ 'From email' | trans }} *</label>
+					<div class="uk-form-controls">
+						<input id="text-from_email" name="from_email" class="uk-width-1-1" v-model="text.data.from_email" v-validate:required v-validate:email/>
+						<p class="uk-form-help-block uk-text-danger" v-show="form.from_email.invalid">{{ 'From email is required' | trans }}</p>
+					</div>
+				</div>
+
+				<div class="uk-form-row">
 					<span class="uk-form-label">{{ 'Use text only for' | trans }}</span>
 
 					<div class="uk-form-controls uk-form-controls-text">
@@ -101,7 +117,7 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 				<h3>{{ 'Available variables' | trans }}</h3>
 				<ul class="uk-list">
 					<li v-for="key in keys">
-						<kbd>$$ {{ key }} $$</kbd>
+						<kbd>$${{ key }}$$</kbd>
 					</li>
 				</ul>
 

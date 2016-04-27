@@ -23,7 +23,11 @@ return [
 			$util->createTable('@emailsender_emaillog', function ($table) {
 				$table->addColumn('id', 'integer', ['unsigned' => true, 'length' => 10, 'autoincrement' => true]);
 				$table->addColumn('sent', 'datetime');
-				$table->addColumn('recievers', 'simple_array');
+				$table->addColumn('from_name', 'string', ['notnull' => false]);
+				$table->addColumn('from_email', 'string');
+				$table->addColumn('recipients', 'simple_array');
+				$table->addColumn('cc', 'simple_array', ['notnull' => false]);
+				$table->addColumn('bcc', 'simple_array', ['notnull' => false]);
 				$table->addColumn('type', 'string', ['length' => 64]);
 				$table->addColumn('subject', 'string', ['length' => 255, 'notnull' => false]);
 				$table->addColumn('content', 'text', ['notnull' => false]);

@@ -19,12 +19,26 @@
 	<div class="uk-form-horizontal">
 
 		<div class="uk-form-row">
-			<label class="uk-form-label">{{ 'Countries suppliers' | trans }}</label>
+			<span class="uk-form-label">{{ 'Logs' | trans }}</span>
 			<div class="uk-form-controls">
-				<select v-model="config.countries_suppliers" size="8" multiple="multiple"
-						class="uk-form-width-medium">
-					<option v-for="country in countries" :value="$key">{{ country }}</option>
-				</select>
+				<label for="text-save_logs" class="uk-form-label">
+					<input id="text-save_logs" type="checkbox" name="save_logs" class="uk-form-width-large"
+						   v-model="config.save_logs"/> {{ 'Save logs' | trans }}
+				</label>
+			</div>
+		</div>
+
+		<div class="uk-form-row">
+			<label for="text-from_name" class="uk-form-label">{{ 'From name' | trans }}</label>
+			<div class="uk-form-controls">
+				<input id="text-from_name" type="text" name="from_name" class="uk-form-width-large" v-model="config.from_name"/>
+			</div>
+		</div>
+
+		<div class="uk-form-row">
+			<label for="text-from_email" class="uk-form-label">{{ 'From email' | trans }}</label>
+			<div class="uk-form-controls">
+				<input id="text-from_email" type="text" name="from_email" class="uk-form-width-large" v-model="config.from_email"/>
 			</div>
 		</div>
 

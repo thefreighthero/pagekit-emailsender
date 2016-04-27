@@ -9,7 +9,7 @@ use Pagekit\System\Model\DataModelTrait;
 /**
  * @Entity(tableClass="@emailsender_emaillog",eventPrefix="emailsender_emaillog")
  */
-class Emaillog implements \JsonSerializable {
+class EmailLog implements \JsonSerializable {
 
 	use DataModelTrait, ModelTrait;
 
@@ -21,15 +21,35 @@ class Emaillog implements \JsonSerializable {
 	 */
 	public $sent;
 	/**
-	 * @Column(type="simple_array")
-	 * @var array
-	 */
-	public $recievers;
-	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
 	public $type;
+	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	public $from_name;
+	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	public $from_email;
+	/**
+	 * @Column(type="simple_array")
+	 * @var array
+	 */
+	public $recipients;
+	/**
+	 * @Column(type="simple_array")
+	 * @var array
+	 */
+	public $cc;
+	/**
+	 * @Column(type="simple_array")
+	 * @var array
+	 */
+	public $bcc;
 	/**
 	 * @Column(type="string")
 	 * @var string

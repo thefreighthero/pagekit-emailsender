@@ -18,12 +18,14 @@ class TextController {
 	 */
 	public function editAction ($id = 0) {
 
-		App::get('emailtypes')->get('core.user.registration')->getKeys();
-
+		$config = App::module('bixie/emailsender')->config();
+		
 		if (!$text = EmailText::find($id)) {
 
 			if ($id == 0) {
 				$text = EmailText::create();
+				$text->set('from_name', $config['from_name']);
+				$text->set('from_email', $config['from_email']);
 			}
 
 		}
