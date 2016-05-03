@@ -19,7 +19,7 @@
 		</div>
 		<div class="uk-position-relative" data-uk-margin>
 
-			<div data-uk-dropdown="{ mode: 'click' }">
+			<div>
 				<a class="uk-button uk-button-primary" :href="$url.route('admin/emailsender/text/edit')">
 					{{ 'Add text' | trans }}</a>
 			</div>

@@ -8,6 +8,7 @@ use Bixie\Emailsender\Model\EmailText;
 use Pagekit\Application as App;
 use Pagekit\Mail\Message;
 use Pagekit\Module\Module;
+use Pagekit\Util\Arr;
 
 class EmailsenderModule extends Module {
 
@@ -16,23 +17,6 @@ class EmailsenderModule extends Module {
 	 */
 	public function main (App $app) {
 
-		$util = $app['db']->getUtility();
-		if ($util->tableExists('@emailsender_emaillog') === false) {
-			$util->createTable('@emailsender_emaillog', function ($table) {
-				$table->addColumn('id', 'integer', ['unsigned' => true, 'length' => 10, 'autoincrement' => true]);
-				$table->addColumn('sent', 'datetime');
-				$table->addColumn('from_name', 'string', ['notnull' => false]);
-				$table->addColumn('from_email', 'string');
-				$table->addColumn('to', 'simple_array');
-				$table->addColumn('cc', 'simple_array', ['notnull' => false]);
-				$table->addColumn('bcc', 'simple_array', ['notnull' => false]);
-				$table->addColumn('type', 'string', ['length' => 64]);
-				$table->addColumn('subject', 'string', ['length' => 255, 'notnull' => false]);
-				$table->addColumn('content', 'text', ['notnull' => false]);
-				$table->addColumn('data', 'json_array', ['notnull' => false]);
-				$table->setPrimaryKey(['id']);
-			});
-		}
 		$app['emailtypes'] = new EmailtypeCollection([
 			'core.user.registration' => [
 				'label' => 'Pagekit User registration',
@@ -40,6 +24,17 @@ class EmailsenderModule extends Module {
 			]
 		]);
 
+	}
+
+	/**
+	 * @param string $type
+	 * @param array $data
+	 * @param array $roles
+	 */
+	public function sendTexts ($type, $data = [], $roles = []) {
+		foreach ($this->loadTexts($type, $data, $roles) as $text) {
+			$this->sendMail($text);
+		}
 	}
 
 	/**
@@ -61,7 +56,6 @@ class EmailsenderModule extends Module {
 				$text->getEmailtype()->addObject($key, $object);
 			}
 		}
-
 		return $texts;
 	}
 
@@ -69,23 +63,25 @@ class EmailsenderModule extends Module {
 	 * @param EmailText $text
 	 * @param array     $mail
 	 * @return bool
+	 * @throws EmailsenderException
 	 */
 	public function sendMail (EmailText $text, $mail = []) {
 		$mail = [
 			'from_name' => $text->get('from_name'),
 			'from_email' => $text->get('from_email'),
-			'recipients' => $text->getTo(@$mail['to']),
-			'cc' => $text->getCc(@$mail['cc']),
-			'bcc' => $text->getBcc(@$mail['bcc']),
+			'recipients' => $text->getTo(Arr::get($mail, 'to', [])),
+			'cc' => $text->getCc(Arr::get($mail, 'cc', [])),
+			'bcc' => $text->getBcc(Arr::get($mail, 'bcc', [])),
 			'subject' => @$mail['subject'] ? : $text->getSubject(),
 			'content' => @$mail['content'] ? : $text->getContent()
 		];
 
 		if (empty($mail['recipients'])) {
-			throw new App\Exception(__('No receivers for email!'));
+			throw new EmailsenderException(__('No receivers for email!'));
 		}
-		
-		$mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), ['mailContent' => $mail['content']]);
+
+		$mailContent = App::content()->applyPlugins($mail['content'], ['markdown' => true]);
+		$mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), ['mailContent' => $mailContent]);
 
 		/** @var Message $message */
 		$message = App::mailer()->create($mail['subject'], $mailContent, $mail['recipients'])
@@ -102,7 +98,7 @@ class EmailsenderModule extends Module {
 		$message->send($errors);
 
 		if (count($errors)) {
-			throw new App\Exception(__('Email failed for %addresses%', ['addresses' => implode(', ', $errors)]));
+			throw new EmailsenderException(__('Email failed for %addresses%', ['addresses' => implode(', ', $errors)]));
 		}
 
 		if ($this->config('save_logs', false)) {

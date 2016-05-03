@@ -22,7 +22,7 @@
 			<span class="uk-form-label">{{ 'Logs' | trans }}</span>
 			<div class="uk-form-controls">
 				<label for="text-save_logs" class="uk-form-label">
-					<input id="text-save_logs" type="checkbox" name="save_logs" class="uk-form-width-large"
+					<input id="text-save_logs" type="checkbox" name="save_logs"
 						   v-model="config.save_logs"/> {{ 'Save logs' | trans }}
 				</label>
 			</div>

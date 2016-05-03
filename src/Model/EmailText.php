@@ -100,7 +100,7 @@ class EmailText implements \JsonSerializable {
 	 * @param array|string $mail2
 	 * @return array
 	 */
-	protected function mergeEmails ($mail1, $mail2 = []) {
+	protected function mergeEmails ($mail1 = [], $mail2 = []) {
 		if (is_string($mail1)) {
 			$mail1 = array_map('trim', explode(';', $this->replaceString($mail1, $this->emailtype->getVars())));
 		}
