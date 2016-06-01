@@ -56,7 +56,7 @@ class EmailsenderController {
 	}
 
 	/**
-	 * @Access("system: manage settings")
+	 * @Access("system: access settings")
 	 */
 	public function settingsAction () {
 
