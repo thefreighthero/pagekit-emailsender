@@ -24,6 +24,11 @@ class EmailLog implements \JsonSerializable {
 	 * @Column(type="string")
 	 * @var string
 	 */
+	public $ext_key;
+	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
 	public $type;
 	/**
 	 * @Column(type="string")

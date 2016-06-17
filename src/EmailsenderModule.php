@@ -31,9 +31,9 @@ class EmailsenderModule extends Module {
 	 * @param array $data
 	 * @param array $roles
 	 */
-	public function sendTexts ($type, $data = [], $roles = []) {
+	public function sendTexts ($type, $data = [], $mail = [], $roles = []) {
 		foreach ($this->loadTexts($type, $data, $roles) as $text) {
-			$this->sendMail($text);
+			$this->sendMail($text, $mail);
 		}
 	}
 
@@ -44,7 +44,7 @@ class EmailsenderModule extends Module {
 	 * @return EmailText[]
 	 */
 	public function loadTexts ($type, $data = [], $roles = []) {
-		$query = EmailText::where(['type = ?'], [$type]);
+		$query = EmailText::where(['type LIKE ?'], ["$type%"]);
 		if (count($roles)) {
 			$query->where(function ($query) use ($roles) {
 				return $query->where('roles IS NULL')->whereInSet('roles', $roles, false, 'OR');
@@ -52,8 +52,9 @@ class EmailsenderModule extends Module {
 		}
 		/** @var EmailText $text */
 		foreach ($texts = $query->get() as $text) {
+			$emailType = $text->getEmailtype();
 			foreach ((array) $data as $key => $object) {
-				$text->getEmailtype()->addObject($key, $object);
+				$emailType->addData($key, $object);
 			}
 		}
 		return $texts;
@@ -72,16 +73,22 @@ class EmailsenderModule extends Module {
 			'recipients' => $text->getTo(Arr::get($mail, 'to', [])),
 			'cc' => $text->getCc(Arr::get($mail, 'cc', [])),
 			'bcc' => $text->getBcc(Arr::get($mail, 'bcc', [])),
-			'subject' => @$mail['subject'] ? : $text->getSubject(),
-			'content' => @$mail['content'] ? : $text->getContent()
+			'subject' => Arr::get($mail, 'subject') ? : $text->getSubject(),
+			'content' => Arr::get($mail, 'content') ? : $text->getContent(),
+			'string_attachments' => Arr::get($mail, 'string_attachments') ? : [],
+			'files' => Arr::get($mail, 'files') ? : [],
+			'data' => [],
+			'ext_key' => Arr::get($mail, 'ext_key') ? : ''
 		];
 
 		if (empty($mail['recipients'])) {
 			throw new EmailsenderException(__('No receivers for email!'));
 		}
 
-		$mailContent = App::content()->applyPlugins($mail['content'], ['markdown' => true]);
-		$mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), ['mailContent' => $mailContent]);
+		$mail['content'] = App::content()->applyPlugins($mail['content'], ['markdown' => true]);
+		$mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
+			'mailContent' => $mail['content']
+		]);
 
 		/** @var Message $message */
 		$message = App::mailer()->create($mail['subject'], $mailContent, $mail['recipients'])
@@ -93,6 +100,21 @@ class EmailsenderModule extends Module {
 		if (!empty($mail['bcc'])) {
 			$message->setBcc($mail['bcc']);
 		}
+		
+		if (!empty($mail['string_attachments'])) {
+			foreach ($mail['string_attachments'] as $string_attachment) {
+				$message->attachData($string_attachment['data'], $string_attachment['name'], Arr::get($string_attachment, 'mime'));
+				$mail['data']['attachments'][] = $string_attachment['name'];
+			}
+		}
+		if (!empty($mail['files'])) {
+			foreach ($mail['files'] as $file_path) {
+				if ($path =  $this->normalizePath(App::path() . '/' . $file_path) and file_exists($path)) {
+					$message->attachFile($path, basename($path));
+					$mail['data']['attachments'][] = basename($path);
+				}
+			}
+		}
 
 		$errors = [];
 		$message->send($errors);
@@ -102,10 +124,36 @@ class EmailsenderModule extends Module {
 		}
 
 		if ($this->config('save_logs', false)) {
-			EmailLog::create($mail)->save(['type' => $text->type, 'sent' => new \DateTime()]);
+			EmailLog::create($mail)->save([
+				'type' => $text->type,
+				'sent' => new \DateTime()
+			]);
 		}
 
 		return true;
+	}
+
+	/**
+	 * Normalizes the given path
+	 * @param  string $path
+	 * @return string
+	 */
+	protected function normalizePath ($path) {
+		$path = str_replace(['\\', '//'], '/', $path);
+		$prefix = preg_match('|^(?P<prefix>([a-zA-Z]+:)?//?)|', $path, $matches) ? $matches['prefix'] : '';
+		$path = substr($path, strlen($prefix));
+		$parts = array_filter(explode('/', $path), 'strlen');
+		$tokens = [];
+
+		foreach ($parts as $part) {
+			if ('..' === $part) {
+				array_pop($tokens);
+			} elseif ('.' !== $part) {
+				array_push($tokens, $part);
+			}
+		}
+
+		return $prefix . implode('/', $tokens);
 	}
 
 }

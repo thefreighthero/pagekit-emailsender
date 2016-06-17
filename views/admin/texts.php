@@ -33,7 +33,7 @@
 			<tr>
 				<th class="pk-table-width-minimum"><input type="checkbox" v-check-all:selected.literal="input[name=id]" number></th>
 				<th class="" v-order:subject="config.filter.order">{{ 'Subject' | trans }}</th>
-				<th class="pk-table-width-200">
+				<th class="pk-table-min-width-200">
 					<input-filter :title="$trans('Type')" :value.sync="config.filter.type" :options="typeoptions"></input-filter>
 				</th>
 				<th class="pk-table-width-100">

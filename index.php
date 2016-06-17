@@ -25,7 +25,8 @@ return [
 		'/api/emailsender' => [
 			'name' => '@emailsender/api',
 			'controller' => [
-				'Bixie\\Emailsender\\Controller\\TextApiController'
+				'Bixie\\Emailsender\\Controller\\TextApiController',
+				'Bixie\\Emailsender\\Controller\\LogApiController'
 			]
 		]
 
@@ -87,6 +88,10 @@ return [
 
 		'emailsender: manage texts' => [
 			'title' => 'Manage texts'
+		],
+
+		'emailsender: manage logs' => [
+			'title' => 'Manage logs'
 		]
 
 	],

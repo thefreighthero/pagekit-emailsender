@@ -26,6 +26,11 @@ class Emailtype implements \JsonSerializable {
 	/**
 	 * @var array
 	 */
+	public $values = [];
+
+	/**
+	 * @var array
+	 */
 	protected $vars;
 	/**
 	 * @var array
@@ -53,12 +58,15 @@ class Emailtype implements \JsonSerializable {
 
 	/**
 	 * @param $key
-	 * @param $object
+	 * @param $data
 	 * @return Emailtype
 	 */
-	public function addObject ($key, $object) {
-		if ($object instanceof \JsonSerializable) {
-			$this->objects[$key] = $object;
+	public function addData ($key, $data) {
+		if ($key == 'values') {
+			$this->values = $data;
+		}
+		if ($data instanceof \JsonSerializable) {
+			$this->objects[$key] = $data;
 		}
 		return $this;
 	}
@@ -72,14 +80,16 @@ class Emailtype implements \JsonSerializable {
 			foreach ($this->classes as $key => $class) {
 				if (!isset($this->objects[$key]) && class_exists($class)) {
 					$object = method_exists($class, 'create') ? $class::create() : new $class();
-					$this->addObject($key, $object);
+					$this->addData($key, $object);
 				}
 				if (isset($this->objects[$key])) { 
 					//get data via jsonSerialize
 					$this->vars[$key] = json_decode(json_encode($this->objects[$key], JSON_NUMERIC_CHECK), true);
 				}
 			}
-
+			foreach ($this->values as $key => $value) {
+				$this->vars['values'][$key] = $value;
+			}
 		}
 		return Arr::flatten($this->vars);
 	}

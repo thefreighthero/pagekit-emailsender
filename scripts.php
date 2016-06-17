@@ -23,6 +23,7 @@ return [
 			$util->createTable('@emailsender_emaillog', function ($table) {
 				$table->addColumn('id', 'integer', ['unsigned' => true, 'length' => 10, 'autoincrement' => true]);
 				$table->addColumn('sent', 'datetime');
+				$table->addColumn('ext_key', 'string', ['notnull' => false]);
 				$table->addColumn('from_name', 'string', ['notnull' => false]);
 				$table->addColumn('from_email', 'string');
 				$table->addColumn('recipients', 'simple_array');
@@ -33,6 +34,7 @@ return [
 				$table->addColumn('content', 'text', ['notnull' => false]);
 				$table->addColumn('data', 'json_array', ['notnull' => false]);
 				$table->setPrimaryKey(['id']);
+				$table->addIndex('ext_key', 'EMAILSENDER_EMAILLOG_EXT_KEY');
 			});
 		}
 
