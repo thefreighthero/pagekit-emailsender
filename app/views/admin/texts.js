@@ -28,6 +28,9 @@ module.exports = {
         load: function () {
             return this.Texts.query(this.config).then(function (res) {
                 this.$set('texts', res.data.texts);
+                this.$set('pages', res.data.pages);
+                this.$set('count', res.data.count);
+                this.$set('selected', []);
             });
         },
 

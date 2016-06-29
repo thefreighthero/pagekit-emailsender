@@ -43,7 +43,7 @@ class LogApiController {
 			$order = [1=>'sent', 2=>'desc'];
 		}
 
-		$default = 5;
+		$default = 25;
 		$limit   = min(max(0, $limit), $default) ?: $default;
 		$count   = $query->count();
 		$pages   = ceil($count / $limit);
@@ -51,6 +51,20 @@ class LogApiController {
 		$logs   = array_values($query->offset($page * $limit)->limit($limit)->orderBy($order[1], $order[2])->get());
 
 		return compact('logs', 'pages', 'count');
+	}
+
+	/**
+	 * @Access("emailsender: manage logs")
+	 * @Route("/detail")
+	 * @Request({"log_id"}, csrf=true)
+	 */
+	public function detailAction ($id) {
+
+		if (!$log = EmailLog::where(['id = ?'], [$id])->first()) {
+			App::abort(404, 'Log not found.');
+		}
+
+		return $log;
 	}
 
 	/**

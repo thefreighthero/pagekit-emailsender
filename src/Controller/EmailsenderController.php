@@ -38,7 +38,7 @@ class EmailsenderController {
 	 * @Route("/logs", methods="GET")
 	 * @Request({"filter": "array", "page":"int"})
 	 */
-	public function logsAction ($filter = null, $page = null) {
+	public function logsAction ($filter = [], $page = null) {
 
 		return [
 			'$view' => [
@@ -48,7 +48,7 @@ class EmailsenderController {
 			'$data' => [
 				'types' => App::get('emailtypes')->all(),
 				'config' => [
-					'filter' => $filter,
+					'filter' => (object) $filter,
 					'page' => $page
 				]
 			]

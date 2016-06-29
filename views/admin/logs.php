@@ -1,23 +1,17 @@
-<?php $view->script('form-logs', 'bixie/emailsender:app/bundle/emailsender-logs.js', ['vue']) ?>
+<?php $view->script('emailsender-logs', 'bixie/emailsender:app/bundle/emailsender-logs.js', ['vue']) ?>
 
-<div id="formmaker-submissions" class="uk-form uk-form-horizontal" v-cloak>
+<div id="emailsender-logs" class="uk-form uk-form-horizontal" v-cloak>
 
 	<div class="uk-margin uk-flex uk-flex-space-between uk-flex-wrap" data-uk-margin>
 		<div class="uk-flex uk-flex-middle uk-flex-wrap" data-uk-margin>
 
-			<h2 class="uk-margin-remove">{{ 'Submissions' | trans }}</h2>
+			<h2 class="uk-margin-remove">{{ 'Email logs' | trans }}</h2>
 
 			<div class="uk-margin-left" v-show="selected.length">
 				<ul class="uk-subnav pk-subnav-icon">
 					<li><a class="pk-icon-delete pk-icon-hover" title="{{ 'Delete' | trans }}"
-						   data-uk-tooltip="{delay: 500}" @click.prevent="removeSubmissions"
-						   v-confirm="'Delete submissions? All data will be deleted from the database.' | trans"></a>
-					</li>
-					<li><a class="uk-icon uk-icon-archive pk-icon-hover" title="{{ 'Archive' | trans }}"
-						   data-uk-tooltip="{delay: 500}" @click.prevent="status(0)"></a>
-					</li>
-					<li><a class="pk-icon-check pk-icon-hover" title="{{ 'Mark as done' | trans }}"
-						   data-uk-tooltip="{delay: 500}" @click.prevent="status(2)"></a>
+						   data-uk-tooltip="{delay: 500}" @click.prevent="removeLogs"
+						   v-confirm="'Delete logs? All data will be deleted from the database.' | trans"></a>
 					</li>
 				</ul>
 			</div>
@@ -39,50 +33,41 @@
 			<thead>
 			<tr>
 				<th class="pk-table-width-minimum"><input type="checkbox" v-check-all:selected.literal="input[name=id]" number></th>
-				<th class="pk-table-min-width-200" v-order:created="config.filter.order">{{ 'Submission date' | trans }}</th>
-				<th class="pk-table-width-100" v-order:ip="config.filter.order">{{ 'IP address' | trans }}</th>
-				<th class="pk-table-width-200 uk-text-center" v-order:email="config.filter.order">{{ 'Email' | trans }}</th>
-				<th class="pk-table-width-100 uk-text-center">
-					<input-filter :title="$trans('Status')" :value.sync="config.filter.status" :options="statusOptions"></input-filter>
-				</th>
-				<th class="pk-table-width-100">
-					<input-filter :title="$trans('Form')" :value.sync="config.filter.form" :options="formOptions"></input-filter>
+				<th class="pk-table-width-200" v-order:sent="config.filter.order">{{ 'Sent date' | trans }}</th>
+				<th class="pk-table-min-width-100" v-order:recipients="config.filter.order">{{ 'Recipients' | trans }}</th>
+				<th class="pk-table-min-width-200" v-order:subject="config.filter.order">{{ 'Subject' | trans }}</th>
+				<th class="pk-table-width-200">
+					<input-filter :title="$trans('Type')" :value.sync="config.filter.type" :options="typeoptions"></input-filter>
 				</th>
 			</tr>
 			</thead>
 			<tbody>
-			<tr class="check-item" v-for="submission in submissions" :class="{'uk-active': active(submission)}">
-				<td><input type="checkbox" name="id" value="{{ submission.id }}"></td>
+			<tr class="check-item" v-for="log in logs" :class="{'uk-active': active(log)}">
+				<td><input type="checkbox" name="id" value="{{ log.id }}"></td>
 				<td>
-					<a @click.prevent="submissionDetails(submission)">{{ submission.created | datetime }}</a>
-				</td>
-				<td>
-					{{ submission.ip }}
+					<a @click.prevent="logDetails(log)">{{ log.sent | date 'medium' }}</a>
 				</td>
 				<td class="pk-table-text-break">
-					{{ submission.email }}
+					{{ log.recipients.join(', ') }}
 				</td>
-				<td class="uk-text-center">
-					<a title="{{ getStatusText(submission) }}" @click.prevent="toggleStatus(submission)"
-						  :class="{'pk-icon-circle-danger': !submission.status,
-							  'pk-icon-circle-primary': submission.status == 1,
-							  'pk-icon-circle-success': submission.status == 2}"></a>
+				<td class="pk-table-text-break">
+					{{ log.subject }}
 				</td>
 				<td>
-					<a :href="$url.route('admin/formmaker/form/edit', { id: submission.form_id })">{{ submission.form_title }}</a>
+					{{ getTypeLabel(log.type) }}
 				</td>
 			</tr>
 			</tbody>
 		</table>
 	</div>
 
-	<h3 class="uk-h1 uk-text-muted uk-text-center" v-show="submissions && !submissions.length">{{ 'No submissions found.' | trans
+	<h3 class="uk-h1 uk-text-muted uk-text-center" v-show="logs && !logs.length">{{ 'No logs found.' | trans
 		}}</h3>
 
 	<v-pagination :page.sync="config.page" :pages="pages" v-show="pages > 1"></v-pagination>
 
-	<v-modal v-ref:submissionmodal large>
-		<submissiondetail :submissionid="submissionID"></submissiondetail>
+	<v-modal v-ref:logmodal large>
+		<logdetail :logid="logID"></logdetail>
 	</v-modal>
 
 

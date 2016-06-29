@@ -8,8 +8,9 @@ module.exports = {
         return _.merge({
             logs: false,
             config: {
-                filter: this.$session.get('bixie.emailsender.logs.filter', {order: 'username asc'})
+                filter: this.$session.get('bixie.emailsender.logs.filter', {order: 'sent desc', type: ''})
             },
+            logID: 0,
             pages: 0,
             count: '',
             roles: [],
@@ -28,7 +29,22 @@ module.exports = {
         load: function () {
             return this.Logs.query(this.config).then(function (res) {
                 this.$set('logs', res.data.logs);
+                this.$set('pages', res.data.pages);
+                this.$set('count', res.data.count);
+                this.$set('selected', []);
+                this.checkDetailHash();
             });
+        },
+
+        checkDetailHash: function () {
+            if (this.$url.current.hash) {
+                var id = parseInt(this.$url.current.hash, 10), log = _.find(this.logs, function (log) {
+                    return log.id === id;
+                });
+                if (log) {
+                    this.logDetails(log);
+                }
+            }
         },
 
         active: function (log) {
@@ -43,22 +59,19 @@ module.exports = {
             return this.types[name] ? this.types[name].label : name;
         },
 
-        getRoles: function (log) {
-            var roles_log = this.$trans('All roles');
-            if (log.roles.length && log.roles.length !== this.roles.length) {
-                roles_log = log.roles.map(function (id) {
-                    return _.find(this.roles, 'id', id).name;
-                }, this).join(', ');
-            }
-            return roles_log;
-        },
-
         removeLogs: function () {
 
             this.Logs.delete({id: 'bulk'}, {ids: this.selected}).then(function () {
                 this.load();
                 this.$notify('Logs(s) deleted.');
             });
+        },
+
+        logDetails: function (log) {
+            window.history.replaceState({}, '', this.$url.current.href.replace('#' + this.$url.current.hash, '') + '#' + log.id);
+            this.$url.current.hash = '#' + log.id;
+            this.logID = log.id;
+            this.$refs.logmodal.open();
         }
 
     },
@@ -86,21 +99,15 @@ module.exports = {
 
             var options = [];
             _.forIn(this.types, function (type, name) {
-                options.push({log: type.label, value: name});
-            });
-
-            return [{label: this.$trans('Filter by'), options: options}];
-        },
-
-        rolesoptions: function () {
-
-            var options = this.roles.map(function (role) {
-                return {log: role.name, value: role.id};
+                options.push({text: type.label, value: name});
             });
 
             return [{label: this.$trans('Filter by'), options: options}];
         }
+    },
 
+    components: {
+        'logdetail': require('../../components/log-detail.vue')
     }
 
 
