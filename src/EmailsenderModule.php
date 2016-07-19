@@ -3,8 +3,10 @@
 namespace Bixie\Emailsender;
 
 use Bixie\Emailsender\Emailtype\EmailtypeCollection;
+use Bixie\Emailsender\Event\EmailPrepareEvent;
 use Bixie\Emailsender\Model\EmailLog;
 use Bixie\Emailsender\Model\EmailText;
+use Bixie\Emailsender\Plugin\MailImagesPlugin;
 use Pagekit\Application as App;
 use Pagekit\Mail\Message;
 use Pagekit\Module\Module;
@@ -16,6 +18,7 @@ class EmailsenderModule extends Module {
 	 * {@inheritdoc}
 	 */
 	public function main (App $app) {
+		$app->subscribe(new MailImagesPlugin($this->config));
 
 		$app['emailtypes'] = new EmailtypeCollection([
 			'core.user.registration' => [
@@ -85,14 +88,17 @@ class EmailsenderModule extends Module {
 			throw new EmailsenderException(__('No receivers for email!'));
 		}
 
-		$mail['content'] = App::content()->applyPlugins($mail['content'], ['markdown' => true]);
+		$mail['content'] = App::content()->applyPlugins(nl2br($mail['content']), ['markdown' => true]);
+		/** @var Message $message */
+		$message = App::mailer()->create($mail['subject'], $mail['content'], $mail['recipients'])
+			->setFrom($mail['from_email'], $mail['from_name']);
+
+		//apply template and check images and links
 		$mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
 			'mailContent' => $mail['content']
 		]);
-
-		/** @var Message $message */
-		$message = App::mailer()->create($mail['subject'], $mailContent, $mail['recipients'])
-			->setFrom($mail['from_email'], $mail['from_name'])->setContentType('text/html');
+		$mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message))->getContent();
+		$message->setBody($mailContent, 'text/html');
 
 		if (!empty($mail['cc'])) {
 			$message->setCc($mail['cc']);
@@ -109,6 +115,16 @@ class EmailsenderModule extends Module {
 		}
 		if (!empty($mail['files'])) {
 			foreach ($mail['files'] as $file_path) {
+				if ($path =  $this->normalizePath(App::path() . '/' . $file_path) and file_exists($path)) {
+					$message->attachFile($path, basename($path));
+					$mail['data']['attachments'][] = basename($path);
+				}
+			}
+		}
+		if (!empty($mailImages)) {
+			foreach ($mailImages as $image) {
+				$message->AddEmbeddedImage($image['path'], $image['name'], $image['filename'], $image['encoding'], $image['mimetype']);
+
 				if ($path =  $this->normalizePath(App::path() . '/' . $file_path) and file_exists($path)) {
 					$message->attachFile($path, basename($path));
 					$mail['data']['attachments'][] = basename($path);

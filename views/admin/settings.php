@@ -42,6 +42,24 @@
 			</div>
 		</div>
 
+		<div class="uk-form-row">
+			<span class="uk-form-label">{{ 'Images' | trans }}</span>
+			<div class="uk-form-controls">
+				<label for="text-embed_images" class="uk-form-label">
+					<input id="text-embed_images" type="checkbox" name="embed_images"
+						   v-model="config.embed_images"/> {{ 'Embed images' | trans }}
+				</label>
+			</div>
+		</div>
+
+		<div v-show="config.embed_images" class="uk-form-row">
+			<label for="text-embed_images_maxsize" class="uk-form-label">{{ 'Maximum size for embedding' | trans }}</label>
+			<div class="uk-form-controls">
+				<input id="text-embed_images_maxsize" type="number" name="embed_images_maxsize" class="uk-form-width-small uk-text-right"
+					   v-model="config.embed_images_maxsize" number/>kB
+			</div>
+		</div>
+
 	</div>
 
 </div>
