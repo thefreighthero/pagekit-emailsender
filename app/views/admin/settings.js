@@ -12,11 +12,15 @@ module.exports = {
     methods: {
 
         save: function () {
-            this.$http.post('admin/system/settings/config', { name: 'bixie/emailsender', config: this.config }).then(function () {
+            this.$http.post('admin/emailsender/config', { config: this.config }).then(function () {
                 this.$notify('Settings saved.');
             }, function (res) {
                 this.$notify(res.data, 'danger');
             });
+        },
+
+        addParameter: function () {
+            this.config.url_parameters.push({key: '', value: ''});
         }
 
     }

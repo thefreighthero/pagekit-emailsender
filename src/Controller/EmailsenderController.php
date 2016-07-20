@@ -72,5 +72,16 @@ class EmailsenderController {
 		];
 	}
 
+	/**
+	 * @Request({"config": "array"}, csrf=true)
+	 * @Access("system: access settings")
+	 */
+	public function configAction($config = []) {
+		App::config('bixie/emailsender')->merge($config, true);
+		//overwrtie merge
+		App::config('bixie/emailsender')->set('url_parameters', $config['url_parameters']);
+
+		return ['message' => 'success'];
+	}
 
 }

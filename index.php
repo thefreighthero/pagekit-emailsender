@@ -39,11 +39,13 @@ return [
 	],
 
 	'config' => [
-		'embed_images' => true,
-		'embed_images_maxsize' => 1024,
 		'save_logs' => true,
 		'from_name' => '',
-		'from_email' => ''
+		'from_email' => '',
+		'embed_images' => true,
+		'embed_images_maxsize' => 50,
+		'add_url_params' => true,
+		'url_parameters' => []
 	],
 
 	'menu' => [

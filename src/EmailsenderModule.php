@@ -7,6 +7,7 @@ use Bixie\Emailsender\Event\EmailPrepareEvent;
 use Bixie\Emailsender\Model\EmailLog;
 use Bixie\Emailsender\Model\EmailText;
 use Bixie\Emailsender\Plugin\MailImagesPlugin;
+use Bixie\Emailsender\Plugin\MailLinksPlugin;
 use Pagekit\Application as App;
 use Pagekit\Mail\Message;
 use Pagekit\Module\Module;
@@ -18,7 +19,10 @@ class EmailsenderModule extends Module {
 	 * {@inheritdoc}
 	 */
 	public function main (App $app) {
-		$app->subscribe(new MailImagesPlugin($this->config));
+		$app->subscribe(
+			new MailImagesPlugin($this->config),
+			new MailLinksPlugin($this->config)
+		);
 
 		$app['emailtypes'] = new EmailtypeCollection([
 			'core.user.registration' => [
