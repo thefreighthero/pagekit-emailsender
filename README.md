@@ -14,14 +14,14 @@ $app->on('boot', function () use ($app) {
             'name.site.mailtype' => [
                 'label' => 'Mail sent on event 1',
                 'classes' => [
-                    'user' => 'Bixie\Freighthero\User\FreightheroUser'
+                    'user' => 'Pagekit\User\Model\User'
                 ]
             ],
             'name.site.mailtype2' => [
                 'label' => 'Mail sent on event 2',
                 'classes' => [
                     'invoice' => 'Your\Namespace\Model\Invoice',
-                    'user' => 'Pagekit\User\FreightheroUser'
+                    'user' => 'Pagekit\User\Model\User'
                 ],
                 'values' => [
                     'file_type' => 'invoice',
@@ -99,3 +99,7 @@ The logs can be retrieved via the API, for instance via Vue resource:
             }
         );
 ```
+
+###HTML template
+
+The base-template of this extension can be overridden in your theme. Create the file
