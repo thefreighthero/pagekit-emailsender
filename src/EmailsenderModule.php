@@ -33,11 +33,12 @@ class EmailsenderModule extends Module {
 
 	}
 
-	/**
-	 * @param string $type
-	 * @param array $data
-	 * @param array $roles
-	 */
+    /**
+     * @param string $type
+     * @param array  $data
+     * @param array  $mail
+     * @param array  $roles
+     */
 	public function sendTexts ($type, $data = [], $mail = [], $roles = []) {
 		foreach ($this->loadTexts($type, $data, $roles) as $text) {
 			$this->sendMail($text, $mail);
@@ -101,7 +102,7 @@ class EmailsenderModule extends Module {
 		$mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
 			'mailContent' => $mail['content']
 		]);
-		$mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message))->getContent();
+		$mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message, $text))->getContent();
 		$message->setBody($mailContent, 'text/html');
 
 		if (!empty($mail['cc'])) {

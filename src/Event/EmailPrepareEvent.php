@@ -2,6 +2,7 @@
 
 namespace Bixie\Emailsender\Event;
 
+use Bixie\Emailsender\Model\EmailText;
 use Pagekit\Event\Event;
 use Pagekit\Mail\Message;
 
@@ -20,6 +21,10 @@ class EmailPrepareEvent extends Event
 	 * @var Message
 	 */
 	protected $message;
+	/**
+	 * @var EmailText
+	 */
+	protected $text;
 
 	/**
 	 * Constructor.
@@ -28,11 +33,12 @@ class EmailPrepareEvent extends Event
 	 * @param Message $message
 	 * @param array  $parameters
 	 */
-	public function __construct ($name, $content, Message $message, array $parameters = []) {
+	public function __construct ($name, $content, Message $message, EmailText $text, array $parameters = []) {
 		parent::__construct($name, $parameters);
 
 		$this->content = $content;
 		$this->message = $message;
+		$this->text = $text;
 	}
 
 	/**
@@ -68,6 +74,13 @@ class EmailPrepareEvent extends Event
 	 */
 	public function getMessage () {
 		return $this->message;
+	}
+
+	/**
+	 * @return EmailText
+	 */
+	public function getText () {
+		return $this->text;
 	}
 
 
