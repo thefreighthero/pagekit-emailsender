@@ -120,7 +120,7 @@ class EmailsenderModule extends Module {
 		}
 		if (!empty($mail['files'])) {
 			foreach ($mail['files'] as $file_path) {
-				if ($path =  $this->normalizePath(App::path() . '/' . $file_path) and file_exists($path)) {
+				if ($path =  $this->normalizePath($file_path) and file_exists($path)) {
 					$message->attachFile($path, basename($path));
 					$mail['data']['attachments'][] = basename($path);
 				}
@@ -130,7 +130,7 @@ class EmailsenderModule extends Module {
 			foreach ($mailImages as $image) {
 				$message->AddEmbeddedImage($image['path'], $image['name'], $image['filename'], $image['encoding'], $image['mimetype']);
 
-				if ($path =  $this->normalizePath(App::path() . '/' . $file_path) and file_exists($path)) {
+				if ($path =  $this->normalizePath($file_path) and file_exists($path)) {
 					$message->attachFile($path, basename($path));
 					$mail['data']['attachments'][] = basename($path);
 				}
@@ -162,8 +162,11 @@ class EmailsenderModule extends Module {
 	protected function normalizePath ($path) {
 		$path = str_replace(['\\', '//'], '/', $path);
 		$prefix = preg_match('|^(?P<prefix>([a-zA-Z]+:)?//?)|', $path, $matches) ? $matches['prefix'] : '';
-		$path = substr($path, strlen($prefix));
-		$parts = array_filter(explode('/', $path), 'strlen');
+        if ($prefix) {
+            return App::locator()->get($path);
+        }
+        $path = App::path() . $path;
+        $parts = array_filter(explode('/', $path), 'strlen');
 		$tokens = [];
 
 		foreach ($parts as $part) {
