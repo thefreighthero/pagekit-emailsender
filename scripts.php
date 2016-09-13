@@ -34,7 +34,7 @@ return [
 				$table->addColumn('content', 'text', ['notnull' => false]);
 				$table->addColumn('data', 'json_array', ['notnull' => false]);
 				$table->setPrimaryKey(['id']);
-				$table->addIndex('ext_key', 'EMAILSENDER_EMAILLOG_EXT_KEY');
+				$table->addIndex(['ext_key'], 'EMAILSENDER_EMAILLOG_EXT_KEY');
 			});
 		}
 

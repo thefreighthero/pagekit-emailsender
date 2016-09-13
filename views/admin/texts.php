@@ -1,6 +1,6 @@
 <?php $view->script('texts-emailsender', 'bixie/emailsender:app/bundle/emailsender-texts.js', ['vue']) ?>
 
-<div id="emailsender-texts" class="uk-text uk-text-horizontal" v-cloak>
+<div id="emailsender-texts" class="uk-text uk-form-horizontal" v-cloak>
 
 	<div class="uk-margin uk-flex uk-flex-space-between uk-flex-wrap" data-uk-margin>
 		<div class="uk-flex uk-flex-middle uk-flex-wrap" data-uk-margin>
@@ -10,7 +10,7 @@
 			<div class="uk-margin-left" v-show="selected.length">
 				<ul class="uk-subnav pk-subnav-icon">
 					<li><a class="pk-icon-delete pk-icon-hover" :title="'Delete' | trans"
-						   data-uk-tooltip="{delay: 500}" @click.prevent="removeTexts"
+						   data-uk-tooltip="{delay: 500}" @click="removeTexts"
 						   v-confirm="'Delete text?' | trans"></a>
 					</li>
 				</ul>

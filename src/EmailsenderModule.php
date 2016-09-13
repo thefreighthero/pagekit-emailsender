@@ -6,6 +6,7 @@ use Bixie\Emailsender\Emailtype\EmailtypeCollection;
 use Bixie\Emailsender\Event\EmailPrepareEvent;
 use Bixie\Emailsender\Model\EmailLog;
 use Bixie\Emailsender\Model\EmailText;
+use Bixie\Emailsender\Plugin\ImpersonatePlugin;
 use Bixie\Emailsender\Plugin\MailImagesPlugin;
 use Bixie\Emailsender\Plugin\MailLinksPlugin;
 use Pagekit\Application as App;
@@ -31,7 +32,8 @@ class EmailsenderModule extends Module {
 			]
 		]);
 
-	}
+
+    }
 
     /**
      * @param string $type
@@ -93,10 +95,12 @@ class EmailsenderModule extends Module {
 			throw new EmailsenderException(__('No receivers for email!'));
 		}
 
+		//setting from on the message is overridden by system ImpersonatePlugin
+        App::mailer()->registerPlugin(new ImpersonatePlugin($text->get('from_email'), $text->get('from_name')));
+
 		$mail['content'] = App::content()->applyPlugins(nl2br($mail['content']), ['markdown' => true]);
 		/** @var Message $message */
-		$message = App::mailer()->create($mail['subject'], $mail['content'], $mail['recipients'])
-			->setFrom($mail['from_email'], $mail['from_name']);
+		$message = App::mailer()->create($mail['subject'], $mail['content'], $mail['recipients']);
 
 		//apply template and check images and links
 		$mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
@@ -120,7 +124,7 @@ class EmailsenderModule extends Module {
 		}
 		if (!empty($mail['files'])) {
 			foreach ($mail['files'] as $file_path) {
-				if ($path =  $this->normalizePath($file_path) and file_exists($path)) {
+				if ($path = $this->normalizePath($file_path) and file_exists($path)) {
 					$message->attachFile($path, basename($path));
 					$mail['data']['attachments'][] = basename($path);
 				}
@@ -165,7 +169,7 @@ class EmailsenderModule extends Module {
         if ($prefix) {
             return App::locator()->get($path);
         }
-        $path = App::path() . $path;
+        $path = App::path() . '/' . $path;
         $parts = array_filter(explode('/', $path), 'strlen');
 		$tokens = [];
 
@@ -177,7 +181,7 @@ class EmailsenderModule extends Module {
 			}
 		}
 
-		return $prefix . implode('/', $tokens);
+		return '/' . implode('/', $tokens);
 	}
 
 }
