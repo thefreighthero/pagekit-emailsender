@@ -84,7 +84,7 @@ class Emailtype implements \JsonSerializable {
 				}
 				if (isset($this->objects[$key])) { 
 					//get data via jsonSerialize
-					$this->vars[$key] = json_decode(json_encode($this->objects[$key], JSON_NUMERIC_CHECK), true);
+					$this->vars[$key] = json_decode(json_encode($this->objects[$key], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT), true);
 				}
 			}
 			foreach ($this->values as $key => $value) {
