@@ -1,6 +1,6 @@
 # Bixie Email sender
 
-Send emails from your extensions.
+Send emails from your extensions. Define templates that can be filled with values from your application.
 
 ### Register EmailTexts
  
@@ -35,8 +35,9 @@ $app->on('boot', function () use ($app) {
     }
 });
 ```
+
 The user variables are loaded from the Pagekit core User or if available the [Bixie Userprofile](https://github.com/Bixie/pagekit-userprofile) 
-ProfileUser. Add a class ro the key `user` to define a custom user class.
+ProfileUser. Add a class with the key `user` to define a custom user class.
 Add classes to add shortcuts to those values in the mailtemplate. Extra variables can be passed in via the `values` key.
 
 ### Load templates
@@ -45,21 +46,20 @@ Load the templates with replaced variable placeholders to edit before sending. O
 Pagekit user will be used if not specified.
 
 ```php
-		$texts = App::module('bixie/emailsender')->loadTexts('name.site.mailtype1', [], $user_id);
-
+$texts = App::module('bixie/emailsender')->loadTexts('name.site.mailtype1', [], $user_id);
 ```
+
 Add custom data to render in the mailtemplate:
 
 ```php
-		$texts = App::module('bixie/emailsender')->loadTexts('name.site.mailtype2', [
-			'order' => $order,
-			'invoice' => $invoice,
-			'values' => [
-                'file_name' => 'myfile.pdf',
-                'note' => 'My personal note',
-	    	]
-		], $user_id);
-
+$texts = App::module('bixie/emailsender')->loadTexts('name.site.mailtype2', [
+    'order' => $order,
+    'invoice' => $invoice,
+    'values' => [
+        'file_name' => 'myfile.pdf',
+        'note' => 'My personal note',
+    ]
+], $user_id);
 ```
 
 ### Send Email
@@ -67,40 +67,38 @@ Add custom data to render in the mailtemplate:
 Send the email from wherever you're extensions logic needs it:
 
 ```php
-        try {
+try {
 
-            App::module('bixie/emailsender')->sendTexts('name.site.mailtype1', [], $user_id);
+    App::module('bixie/emailsender')->sendTexts('name.site.mailtype1', [], $user_id);
 
-        } catch (EmailsenderException $e) {
-            //error handling
-        }
-
+} catch (EmailsenderException $e) {
+    //error handling
+}
 ```
 
 Override the default template content with user-filled or customized values, or add extra addresses or files. The 
 value `ext_key` is used for logging.
 
 ```php
-        try {
+try {
 
-            App::module('bixie/emailsender')->sendTexts('name.site.mailtype2', [
-                'order' => $order,
-                'invoice' => $invoice,
-                'values' => [
-                    'file_name' => 'myfile.pdf',
-                    'note' => 'My personal note',
-                ]
-            ], [
-                'subject' => $customsubject,
-                'bcc' => $adminEmail,
-                'files' => ['/var/www/myfile.pdf'],
-                'ext_key' => 'mailtype2.' . $recordId
-            ]);
+    App::module('bixie/emailsender')->sendTexts('name.site.mailtype2', [
+        'order' => $order,
+        'invoice' => $invoice,
+        'values' => [
+            'file_name' => 'myfile.pdf',
+            'note' => 'My personal note',
+        ]
+    ], [
+        'subject' => $customsubject,
+        'bcc' => $adminEmail,
+        'files' => ['/var/www/myfile.pdf'],
+        'ext_key' => 'mailtype2.' . $recordId
+    ]);
 
-        } catch (EmailsenderException $e) {
-            //error handling
-        }
-
+} catch (EmailsenderException $e) {
+    //error handling
+}
 ```
 
 ### Manipulate messages before sending
@@ -108,51 +106,47 @@ value `ext_key` is used for logging.
 You can first retrieve the prefilled templates from Emailsender, send those to your UI for editing, and then send the final text.
 
 ```php
+$templates = App::module('bixie/emailsender')->loadTexts('name.site.mailtype2', [
+    'order' => $order,
+    'invoice' => $invoice,
+    'values' => [
+        'file_name' => 'myfile.pdf',
+        'note' => 'My personal note',
+    ]
+], $user_id);
 
-    $templates = App::module('bixie/emailsender')->loadTexts('name.site.mailtype2', [
-        'order' => $order,
-        'invoice' => $invoice,
-        'values' => [
-            'file_name' => 'myfile.pdf',
-            'note' => 'My personal note',
-        ]
-    ], $user_id);
-    
-    /** @var EmailText $text */
-    $text = reset($templates);
-    
-    $mail = [
-        'to' => $text->getTo(),
-        'cc' => $text->getCc('extra@ccaddress.com'),
-        'bcc' => App::user()->hasAccess('emailsender: manage texts') ? $text->getBcc() : '',
-        'subject' => $text->getSubject(),
-        'content' => $text->getContent()
-    ]];
+/** @var EmailText $text */
+$text = reset($templates);
 
+$mail = [
+    'to' => $text->getTo(),
+    'cc' => $text->getCc('extra@ccaddress.com'),
+    'bcc' => App::user()->hasAccess('emailsender: manage texts') ? $text->getBcc() : '',
+    'subject' => $text->getSubject(),
+    'content' => $text->getContent()
+]];
 ```
 
 You can manipulate the `$email` array and send back the changed values to the server. Then let Emailsender send the mail. Note 
 that Emailsender adds the to, cc and bcc addresses from the template, even if they are omitted in the `$mail` array.
 
 ```php
+//no need to pass the data now, the email text will be overwritten from `$email`
+$texts = $this->module->loadTexts('name.site.mailtype2', [], $user_id);
 
-    //no need to pass the data now, the email text will be overwritten from `$email`
-    $texts = $this->module->loadTexts('name.site.mailtype2', [], $user_id);
+/** @var EmailText $text */
+$text = reset($texts);
 
-    /** @var EmailText $text */
-    $text = reset($texts);
+try {
 
-    try {
+    //pass the changed array `$mail`
+    $this->module->sendMail($text, $mail);
 
-        //pass the changed array `$mail`
-        $this->module->sendMail($text, $mail);
+    //success
 
-        //success
-
-    } catch (App\Exception $e) {
-        //error handling
-    }
-
+} catch (App\Exception $e) {
+    //error handling
+}
 ```
 
 All this functionality is combined with an interface available in the [Framework Email interface](#email-interface).
@@ -162,14 +156,14 @@ All this functionality is combined with an interface available in the [Framework
 The logs can be retrieved via the API, for instance via Vue resource:
 
 ```js
-    this.$resource('api/emailsender/log').query({filter: {search: '', ext_key: 'mailtype2.34', order: 'sent desc'}, page: 0})
-        .then(res => {
-                var data = res.data;
-                this.$set('logs', data.logs);
-                this.$set('pages', data.pages);
-                this.$set('count', data.count);
-                this.$set('selected', []);
-            }, res => this.$notify(res.data.message || res.data, 'danger'));
+this.$resource('api/emailsender/log').query({filter: {search: '', ext_key: 'mailtype2.34', order: 'sent desc'}, page: 0})
+    .then(res => {
+            var data = res.data;
+            this.$set('logs', data.logs);
+            this.$set('pages', data.pages);
+            this.$set('count', data.count);
+            this.$set('selected', []);
+        }, res => this.$notify(res.data.message || res.data, 'danger'));
 ```
 
 ### HTML template
@@ -184,14 +178,13 @@ in any view or template.
 Retrieve a list of templates in your controller via the module. You can pass in a filter for the types to fetch.
 
 ```php
- $templates = array_values(App::module('bixie/emailsender')->loadTexts('name.site.'));
+$templates = array_values(App::module('bixie/emailsender')->loadTexts('name.site.'));
 ```
 
 Then render the component in your view:
 
 ```html
-        <email-communication :templates="templates" :ext_key="`name.site.item.${item.id}`"></email-communication>
-
+<email-communication :templates="templates" :ext_key="`name.site.item.${item.id}`"></email-communication>
 ```
 
 Property | Type | value 
@@ -207,13 +200,13 @@ attachments | Array _optional_      | string of filenames to show in the interfa
 A fully customized component could look like this:
 
 ```html
-        <email-communication :templates="templates"
-                             :ext_key="`name.site.${item.id}`"
-                             resource="api/mymodule/email"
-                             :id="item.id"
-                             :user_id="item.user_id"
-                             :email-data="emailData"
-                             :attachments="attachments"></email-communication>
+<email-communication :templates="templates"
+                     :ext_key="`name.site.${item.id}`"
+                     resource="api/mymodule/email"
+                     :id="item.id"
+                     :user_id="item.user_id"
+                     :email-data="emailData"
+                     :attachments="attachments"></email-communication>
 
 ```
 
