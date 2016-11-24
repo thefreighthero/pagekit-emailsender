@@ -108,7 +108,17 @@ value `ext_key` is used for logging.
 You can first retrieve the prefilled templates from Emailsender, send those to your UI for editing, and then send the final text.
 
 ```php
-    $templates = App::module('bixie/emailsender')->loadTexts('name.site.mailtype2');
+
+    $templates = App::module('bixie/emailsender')->loadTexts('name.site.mailtype2', [
+        'order' => $order,
+        'invoice' => $invoice,
+        'values' => [
+            'file_name' => 'myfile.pdf',
+            'note' => 'My personal note',
+        ]
+    ], $user_id);
+    
+    /** @var EmailText $text */
     $text = reset($templates);
     
     $mail = [
@@ -121,7 +131,31 @@ You can first retrieve the prefilled templates from Emailsender, send those to y
 
 ```
 
+You can manipulate the `$email` array and send back the changed values to the server. Then let Emailsender send the mail. Note 
+that Emailsender adds the to, cc and bcc addresses from the template, even if they are omitted in the `$mail` array.
 
+```php
+
+    //no need to pass the data now, the email text will be overwritten from `$email`
+    $texts = $this->module->loadTexts('name.site.mailtype2', [], $user_id);
+
+    /** @var EmailText $text */
+    $text = reset($texts);
+
+    try {
+
+        //pass the changed array `$mail`
+        $this->module->sendMail($text, $mail);
+
+        //success
+
+    } catch (App\Exception $e) {
+        //error handling
+    }
+
+```
+
+All this functionality is combined with an interface available in the [Framework Email interface](#email-interface).
 
 ### Retrieve log
 
@@ -138,12 +172,12 @@ The logs can be retrieved via the API, for instance via Vue resource:
             }, res => this.$notify(res.data.message || res.data, 'danger'));
 ```
 
-###HTML template
+### HTML template
 
 The base-template of this extension can be overridden in your theme. Create the file `views/bixie/emailsender/mails/default.php` to 
 replace the default template.
 
-###Email interface
+### Email interface
 
 The [Bixie Pagekit Framework](https://github.com/Bixie/pk-framework) provides a Vue component that lets you integrate the emailsender 
 in any view or template.
@@ -185,7 +219,7 @@ A fully customized component could look like this:
 
 The component shows the log of sent messages and an interface to compose new messages based on the prefilled email templates.
 
-###Message parsing
+### Message parsing
 
 Emailsender will parse the messages and replace all `$$value.key$$` placeholders with the values passed to the mail function. 
 Emailsender uses the `json_encode` function to retrieve the values from the objects.
