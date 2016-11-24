@@ -4,7 +4,7 @@ Send emails from your extensions. Define templates that can be filled with value
 
 ### Register EmailTexts
  
-Add emailtypes from our extension on the `boot` event:
+Add emailtypes from your extension/theme on the `boot` event:
 
 ```php
 $app->on('boot', function () use ($app) {
