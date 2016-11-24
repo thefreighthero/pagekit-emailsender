@@ -98,7 +98,6 @@ class Emailtype implements \JsonSerializable {
 			foreach ($this->classes as $key => $class) {
 				if (!isset($this->objects[$key]) && class_exists($class)) {
                     $data = isset($this->object_data[$key]) ? $this->object_data[$key] : [];
-                    $e = method_exists($class, 'create');
 					$object = method_exists($class, 'create') ? $class::create($data) : new $class();
 					$this->addData($key, $object);
 				}
