@@ -3,8 +3,6 @@
 namespace Bixie\Emailsender\Controller;
 
 use Pagekit\Application as App;
-use Bixie\Formmaker\Model\Form;
-use Bixie\Formmaker\Model\Submission;
 use Pagekit\User\Model\Role;
 
 /**

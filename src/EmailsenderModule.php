@@ -39,22 +39,30 @@ class EmailsenderModule extends Module {
      * @param string $type
      * @param array  $data
      * @param array  $mail
+     * @param int    $user_id
      * @param array  $roles
      */
-	public function sendTexts ($type, $data = [], $mail = [], $roles = []) {
-		foreach ($this->loadTexts($type, $data, $roles) as $text) {
+	public function sendTexts ($type, $data = [], $mail = [], $user_id = 0, $roles = []) {
+		foreach ($this->loadTexts($type, $data, $user_id, $roles) as $text) {
 			$this->sendMail($text, $mail);
 		}
 	}
 
-	/**
-	 * @param string $type
-	 * @param array $data
-	 * @param array $roles
-	 * @return EmailText[]
-	 */
-	public function loadTexts ($type, $data = [], $roles = []) {
-		$query = EmailText::where(['type LIKE ?'], ["$type%"]);
+    /**
+     * @param string $type
+     * @param array  $data
+     * @param int    $user_id
+     * @param array  $roles
+     * @return EmailText[]
+     */
+	public function loadTexts ($type, $data = [], $user_id = 0, $roles = []) {
+
+        $user = $user_id ? App::auth()->getUserProvider()->find($user_id) : App::user();
+        if ($userprofile = App::module('bixie/userprofile')) {
+            $user = \Bixie\Userprofile\User\ProfileUser::load();
+        }
+
+        $query = EmailText::where(['type LIKE ?'], ["$type%"]);
 		if (count($roles)) {
 			$query->where(function ($query) use ($roles) {
 				return $query->where('roles IS NULL')->whereInSet('roles', $roles, false, 'OR');
@@ -63,7 +71,7 @@ class EmailsenderModule extends Module {
 		/** @var EmailText $text */
 		foreach ($texts = $query->get() as $text) {
 			$emailType = $text->getEmailtype();
-			foreach ((array) $data as $key => $object) {
+			foreach (array_merge(['user' => $user], (array) $data) as $key => $object) {
 				$emailType->addData($key, $object);
 			}
 		}
@@ -99,53 +107,61 @@ class EmailsenderModule extends Module {
         App::mailer()->registerPlugin(new ImpersonatePlugin($text->get('from_email'), $text->get('from_name')));
 
 		$mail['content'] = App::content()->applyPlugins(nl2br($mail['content']), ['markdown' => true]);
-		/** @var Message $message */
-		$message = App::mailer()->create($mail['subject'], $mail['content'], $mail['recipients']);
 
-		//apply template and check images and links
-		$mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
-			'mailContent' => $mail['content']
-		]);
-		$mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message, $text))->getContent();
-		$message->setBody($mailContent, 'text/html');
+        //Swift can throw exceptions on validating the addresses
+        try {
 
-		if (!empty($mail['cc'])) {
-			$message->setCc($mail['cc']);
-		}
-		if (!empty($mail['bcc'])) {
-			$message->setBcc($mail['bcc']);
-		}
-		
-		if (!empty($mail['string_attachments'])) {
-			foreach ($mail['string_attachments'] as $string_attachment) {
-				$message->attachData($string_attachment['data'], $string_attachment['name'], Arr::get($string_attachment, 'mime'));
-				$mail['data']['attachments'][] = $string_attachment['name'];
-			}
-		}
-		if (!empty($mail['files'])) {
-			foreach ($mail['files'] as $file_path) {
-				if ($path = $this->normalizePath($file_path) and file_exists($path)) {
-					$message->attachFile($path, basename($path));
-					$mail['data']['attachments'][] = basename($path);
-				}
-			}
-		}
-		if (!empty($mailImages)) {
-			foreach ($mailImages as $image) {
-				$message->AddEmbeddedImage($image['path'], $image['name'], $image['filename'], $image['encoding'], $image['mimetype']);
+            /** @var Message $message */
+            $message = App::mailer()->create($mail['subject'], $mail['content'], $mail['recipients']);
 
-				if ($path =  $this->normalizePath($file_path) and file_exists($path)) {
-					$message->attachFile($path, basename($path));
-					$mail['data']['attachments'][] = basename($path);
-				}
-			}
-		}
+            //apply template and check images and links
+            $mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
+                'mailContent' => $mail['content']
+            ]);
+            $mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message, $text))->getContent();
+            $message->setBody($mailContent, 'text/html');
 
-		$errors = [];
-		$message->send($errors);
+            if (!empty($mail['cc'])) {
+                $message->setCc($mail['cc']);
+            }
+            if (!empty($mail['bcc'])) {
+                $message->setBcc($mail['bcc']);
+            }
+
+            if (!empty($mail['string_attachments'])) {
+                foreach ($mail['string_attachments'] as $string_attachment) {
+                    $message->attachData($string_attachment['data'], $string_attachment['name'], Arr::get($string_attachment, 'mime'));
+                    $mail['data']['attachments'][] = $string_attachment['name'];
+                }
+            }
+            if (!empty($mail['files'])) {
+                foreach ($mail['files'] as $file_path) {
+                    if ($path = $this->normalizePath($file_path) and file_exists($path)) {
+                        $message->attachFile($path, basename($path));
+                        $mail['data']['attachments'][] = basename($path);
+                    }
+                }
+            }
+            if (!empty($mailImages)) {
+                foreach ($mailImages as $image) {
+                    $message->AddEmbeddedImage($image['path'], $image['name'], $image['filename'], $image['encoding'], $image['mimetype']);
+
+                    if ($path =  $this->normalizePath($file_path) and file_exists($path)) {
+                        $message->attachFile($path, basename($path));
+                        $mail['data']['attachments'][] = basename($path);
+                    }
+                }
+            }
+
+            $errors = [];
+            $message->send($errors);
+
+        } catch (\Swift_SwiftException $e) {
+            throw new EmailsenderException($e->getMessage(), $e->getCode(), $e);
+        }
 
 		if (count($errors)) {
-			throw new EmailsenderException(__('Email failed for %addresses%', ['addresses' => implode(', ', $errors)]));
+			throw new EmailsenderException(__('Email failed for %addresses%', ['%addresses%' => implode(', ', $errors)]));
 		}
 
 		if ($this->config('save_logs', false)) {

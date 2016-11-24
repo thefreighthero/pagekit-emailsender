@@ -10,7 +10,7 @@ return [
 
 	'autoload' => [
 
-		'Bixie\\Emailsender\\' => 'src'
+		'Bixie\\Emailsender\\' => 'src',
 
 	],
 	'routes' => [
@@ -19,14 +19,15 @@ return [
 			'name' => '@emailsender',
 			'controller' => [
 				'Bixie\\Emailsender\\Controller\\EmailsenderController',
-				'Bixie\\Emailsender\\Controller\\TextController'
+				'Bixie\\Emailsender\\Controller\\TextController',
 			]
 		],
 		'/api/emailsender' => [
 			'name' => '@emailsender/api',
 			'controller' => [
+				'Bixie\\Emailsender\\Controller\\EmailsenderApiController',
 				'Bixie\\Emailsender\\Controller\\TextApiController',
-				'Bixie\\Emailsender\\Controller\\LogApiController'
+				'Bixie\\Emailsender\\Controller\\LogApiController',
 			]
 		]
 
@@ -34,7 +35,7 @@ return [
 
 	'resources' => [
 
-		'bixie/emailsender:' => ''
+		'bixie/emailsender:' => '',
 
 	],
 
@@ -45,7 +46,7 @@ return [
 		'embed_images' => true,
 		'embed_images_maxsize' => 50,
 		'add_url_params' => true,
-		'url_parameters' => []
+		'url_parameters' => [],
 	],
 
 	'menu' => [
@@ -55,7 +56,7 @@ return [
 			'icon' => 'packages/bixie/emailsender/icon.svg',
 			'url' => '@emailsender',
 			'access' => 'emailsender: manage texts',
-			'active' => '@emailsender(/*)'
+			'active' => '@emailsender(/*)',
 		],
 
 		'emailsender: texts' => [
@@ -63,7 +64,7 @@ return [
 			'parent' => 'emailsender',
 			'url' => '@emailsender',
 			'access' => 'emailsender: manage forms',
-			'active' => '@emailsender(/text/edit)?'
+			'active' => '@emailsender(/text/edit)?',
 		],
 
 		'emailsender: logs' => [
@@ -71,7 +72,7 @@ return [
 			'parent' => 'emailsender',
 			'url' => '@emailsender/logs',
 			'access' => 'emailsender: manage settings',
-			'active' => '@emailsender/logs(/edit)?'
+			'active' => '@emailsender/logs(/edit)?',
 		],
 
 		'emailsender: settings' => [
@@ -79,24 +80,28 @@ return [
 			'parent' => 'emailsender',
 			'url' => '@emailsender/settings',
 			'access' => 'emailsender: manage settings',
-			'active' => '@emailsender/settings'
+			'active' => '@emailsender/settings',
 		]
 
 	],
 
 	'permissions' => [
 
-		'emailsender: manage settings' => [
-			'title' => 'Manage settings'
+		'emailsender: send mails' => [
+			'title' => 'Send emails',
 		],
 
 		'emailsender: manage texts' => [
-			'title' => 'Manage texts'
+			'title' => 'Manage texts',
 		],
 
 		'emailsender: manage logs' => [
-			'title' => 'Manage logs'
-		]
+			'title' => 'Manage logs',
+		],
+
+		'emailsender: manage settings' => [
+            'title' => 'Manage settings',
+        ],
 
 	],
 

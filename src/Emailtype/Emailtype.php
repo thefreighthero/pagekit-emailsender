@@ -19,23 +19,32 @@ class Emailtype implements \JsonSerializable {
 	public $label;
 
 	/**
+     * Class references to objects to include in the type
 	 * @var array
 	 */
 	public $classes = [];
 
 	/**
+     * manually defined values to be replaced in email
 	 * @var array
 	 */
 	public $values = [];
 
 	/**
+     * Processed plain values for replacement
 	 * @var array
 	 */
 	protected $vars;
 	/**
+     * Serializable objects to extract data from
 	 * @var array
 	 */
 	protected $objects = [];
+	/**
+     * Array data to hydrate objects with
+	 * @var array
+	 */
+	protected $object_data = [];
 
 	/**
 	 * Emailtype constructor.
@@ -47,6 +56,11 @@ class Emailtype implements \JsonSerializable {
 		foreach (get_object_vars($this) as $key => $default) {
 			$this->$key = Arr::get($data, $key, $default);
 		}
+		if (!isset($this->classes['user'])) {
+            $this->classes['user'] = class_exists('Bixie\Userprofile\User\ProfileUser') ?
+                'Bixie\Userprofile\User\ProfileUser' :
+                'Pagekit\User\Model\User';
+        }
 	}
 
 	/**
@@ -68,10 +82,14 @@ class Emailtype implements \JsonSerializable {
 		if ($data instanceof \JsonSerializable) {
 			$this->objects[$key] = $data;
 		}
+		if (isset($this->classes[$key])) {
+			$this->object_data[$key] = $data;
+		}
 		return $this;
 	}
 
 	/**
+     * Process objects and values to replacable vars
 	 * @return array
 	 */
 	public function getVars ($flat = true) {
@@ -79,7 +97,9 @@ class Emailtype implements \JsonSerializable {
 			$this->vars = [];
 			foreach ($this->classes as $key => $class) {
 				if (!isset($this->objects[$key]) && class_exists($class)) {
-					$object = method_exists($class, 'create') ? $class::create() : new $class();
+                    $data = isset($this->object_data[$key]) ? $this->object_data[$key] : [];
+                    $e = method_exists($class, 'create');
+					$object = method_exists($class, 'create') ? $class::create($data) : new $class();
 					$this->addData($key, $object);
 				}
 				if (isset($this->objects[$key])) { 
@@ -95,6 +115,7 @@ class Emailtype implements \JsonSerializable {
 	}
 
 	/**
+     * Replacable keys
 	 * @return mixed
 	 */
 	public function getKeys () {

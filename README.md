@@ -77,7 +77,8 @@ Send the email from wherever you're extensions logic needs it:
 
 ```
 
-Override the default template content with user-filled or customized values, or add extra addresses or files. The value `ext_key` is used for logging.
+Override the default template content with user-filled or customized values, or add extra addresses or files. The 
+value `ext_key` is used for logging.
 
 ```php
         try {
@@ -101,6 +102,26 @@ Override the default template content with user-filled or customized values, or 
         }
 
 ```
+
+### Manipulate messages before sending
+
+You can first retrieve the prefilled templates from Emailsender, send those to your UI for editing, and then send the final text.
+
+```php
+    $templates = App::module('bixie/emailsender')->loadTexts('name.site.mailtype2');
+    $text = reset($templates);
+    
+    $mail = [
+        'to' => $text->getTo(),
+        'cc' => $text->getCc('extra@ccaddress.com'),
+        'bcc' => App::user()->hasAccess('emailsender: manage texts') ? $text->getBcc() : '',
+        'subject' => $text->getSubject(),
+        'content' => $text->getContent()
+    ]];
+
+```
+
+
 
 ### Retrieve log
 
@@ -149,7 +170,7 @@ user_id   |  Number _optional_      | User id to use for user data. If not provi
 email-data | Object _optional_      | Additional data to pass to the template render function
 attachments | Array _optional_      | string of filenames to show in the interface
 
-A fully customized module could look like this:
+A fully customized component could look like this:
 
 ```html
         <email-communication :templates="templates"
@@ -162,3 +183,16 @@ A fully customized module could look like this:
 
 ```
 
+The component shows the log of sent messages and an interface to compose new messages based on the prefilled email templates.
+
+###Message parsing
+
+Emailsender will parse the messages and replace all `$$value.key$$` placeholders with the values passed to the mail function. 
+Emailsender uses the `json_encode` function to retrieve the values from the objects.
+
+Links in the email that are relative (eg `/contact-us`) are automatically prefixed with the domain name and 
+host (`http://www.domain.com/contact-us`). Optionally the urls can be suffixed with a parameter to track the source of 
+the mails (eg `http://www.domain.com/contact-us?utm_source=automail`).
+
+Images in the email can be replaced with inline data to prevent the annoying warnings in email clients. A maximum size can 
+be set to prevent emails from getting too large.
