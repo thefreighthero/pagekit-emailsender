@@ -124,7 +124,7 @@ $mail = [
     'bcc' => App::user()->hasAccess('emailsender: manage texts') ? $text->getBcc() : '',
     'subject' => $text->getSubject(),
     'content' => $text->getContent()
-]];
+];
 ```
 
 You can manipulate the `$email` array and send back the changed values to the server. Then let Emailsender send the mail. Note 
