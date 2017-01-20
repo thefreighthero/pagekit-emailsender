@@ -18,7 +18,7 @@ class TextApiController {
 	 */
 	public function indexAction ($filter = [], $page = 0) {
 		$query = EmailText::query();
-		$filter = array_merge(array_fill_keys(['type', 'order', 'limit'], ''), $filter);
+		$filter = array_merge(array_fill_keys(['type', 'order', 'search', 'limit'], ''), $filter);
 
 		extract($filter, EXTR_SKIP);
 
@@ -30,6 +30,11 @@ class TextApiController {
 			$order = [1 => 'subject', 2 => 'asc'];
 		}
 
+        if ($search) {
+            $query->where(function ($query) use ($search) {
+                $query->orWhere(['subject LIKE :search', 'content LIKE :search'], ['search' => "%{$search}%"]);
+            });
+        }
 
 		$limit = (int)$limit ?: 20;
 		$count = $query->count();

@@ -8,7 +8,7 @@ module.exports = {
         return _.merge({
             texts: false,
             config: {
-                filter: this.$session.get('bixie.emailsender.texts.filter', {order: 'username asc'})
+                filter: this.$session.get('bixie.emailsender.texts.filter', {search: '', order: 'username asc'})
             },
             pages: 0,
             count: '',

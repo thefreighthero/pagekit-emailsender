@@ -16,7 +16,13 @@
 				</ul>
 			</div>
 
-		</div>
+            <div class="pk-search">
+                <div class="uk-search">
+                    <input class="uk-search-field" type="text" v-model="config.filter.search" debounce="300">
+                </div>
+            </div>
+
+        </div>
 		<div class="uk-position-relative" data-uk-margin>
 
 			<div>
