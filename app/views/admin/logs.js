@@ -8,7 +8,7 @@ module.exports = {
         return _.merge({
             logs: false,
             config: {
-                filter: this.$session.get('bixie.emailsender.logs.filter', {order: 'sent desc', type: ''})
+                filter: this.$session.get('bixie.emailsender.logs.filter', {search: '', order: 'sent desc', type: ''})
             },
             logID: 0,
             pages: 0,
