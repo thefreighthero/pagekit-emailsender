@@ -36,6 +36,19 @@ class EmailsenderModule extends Module {
     }
 
     /**
+     * @param int     $id
+     * @param array  $data
+     * @param array  $mail
+     * @param int    $user_id
+     * @param array  $roles
+     */
+	public function sendText ($id, $data = [], $mail = [], $user_id = 0, $roles = []) {
+		if ($text = $this->loadText($id, $data, $user_id, $roles)) {
+			$this->sendMail($text, $mail);
+		}
+	}
+
+    /**
      * @param string $type
      * @param array  $data
      * @param array  $mail
@@ -46,6 +59,36 @@ class EmailsenderModule extends Module {
 		foreach ($this->loadTexts($type, $data, $user_id, $roles) as $text) {
 			$this->sendMail($text, $mail);
 		}
+	}
+
+    /**
+     * @param string $id
+     * @param array  $data
+     * @param int    $user_id
+     * @param array  $roles
+     * @return EmailText
+     */
+	public function loadText ($id, $data = [], $user_id = 0, $roles = []) {
+
+        $user = $user_id ? App::auth()->getUserProvider()->find($user_id) : App::user();
+        if ($userprofile = App::module('bixie/userprofile')) {
+            $user = \Bixie\Userprofile\User\ProfileUser::load();
+        }
+
+        $query = EmailText::where(compact('id'));
+		if (count($roles)) {
+			$query->where(function ($query) use ($roles) {
+				return $query->where('roles IS NULL')->whereInSet('roles', $roles, false, 'OR');
+			});
+		}
+		/** @var EmailText $text */
+		if ($text = $query->first()) {
+			$emailType = $text->getEmailtype();
+			foreach (array_merge(['user' => $user], (array) $data) as $key => $object) {
+				$emailType->addData($key, $object);
+			}
+		}
+		return $text;
 	}
 
     /**
@@ -62,7 +105,7 @@ class EmailsenderModule extends Module {
             $user = \Bixie\Userprofile\User\ProfileUser::load();
         }
 
-        $query = EmailText::where(['type LIKE ?'], ["$type%"]);
+        $query = EmailText::where(['type LIKE ?'], ["$type%"])->orderBy('type', 'ASC')->orderBy('subject', 'ASC');
 		if (count($roles)) {
 			$query->where(function ($query) use ($roles) {
 				return $query->where('roles IS NULL')->whereInSet('roles', $roles, false, 'OR');
