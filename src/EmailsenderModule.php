@@ -138,7 +138,7 @@ class EmailsenderModule extends Module {
 			'content' => Arr::get($mail, 'content') ? : $text->getContent(),
 			'string_attachments' => Arr::get($mail, 'string_attachments') ? : [],
 			'files' => Arr::get($mail, 'files') ? : [],
-			'data' => [],
+			'data' => array_merge(['attachments' => []], Arr::get($mail, 'data') ? : []),
 			'ext_key' => Arr::get($mail, 'ext_key') ? : ''
 		];
 
@@ -188,11 +188,6 @@ class EmailsenderModule extends Module {
             if (!empty($mailImages)) {
                 foreach ($mailImages as $image) {
                     $message->AddEmbeddedImage($image['path'], $image['name'], $image['filename'], $image['encoding'], $image['mimetype']);
-
-                    if ($path =  $this->normalizePath($file_path) and file_exists($path)) {
-                        $message->attachFile($path, basename($path));
-                        $mail['data']['attachments'][] = basename($path);
-                    }
                 }
             }
 
@@ -203,7 +198,8 @@ class EmailsenderModule extends Module {
             throw new EmailsenderException($e->getMessage(), $e->getCode(), $e);
         }
 
-		if (count($errors)) {
+        //todo detect dev env properly
+		if (count($errors) && empty($_SERVER['WINDIR'])) {
 			throw new EmailsenderException(__('Email failed for %addresses%', ['%addresses%' => implode(', ', $errors)]));
 		}
 
@@ -229,7 +225,7 @@ class EmailsenderModule extends Module {
             return App::locator()->get($path);
         }
         $path = App::path() . '/' . $path;
-        $parts = array_filter(explode('/', $path), 'strlen');
+        $parts = array_filter(explode('/', str_replace('\\', '/', $path)), 'strlen');
 		$tokens = [];
 
 		foreach ($parts as $part) {
@@ -240,7 +236,7 @@ class EmailsenderModule extends Module {
 			}
 		}
 
-		return '/' . implode('/', $tokens);
+		return (!isset($tokens[0]) || stripos($tokens[0], ':') === false ? '/' : '') . implode('/', $tokens);
 	}
 
 }

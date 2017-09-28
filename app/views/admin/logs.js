@@ -97,7 +97,7 @@ module.exports = {
 
         typeoptions: function () {
 
-            var options = [];
+            var options = [{label: this.$trans('External'), value: 'External'}];
             _.forIn(this.types, function (type, name) {
                 options.push({text: type.label, value: name});
             });

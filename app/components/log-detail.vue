@@ -15,11 +15,11 @@
                     <dt>{{ 'Subject' | trans }}</dt>
                     <dd>{{ log.subject }}</dd>
                     <dt>{{ 'Contents' | trans }}</dt>
-                    <dd>{{{ log.content }}}</dd>
+                    <dd style="white-space: pre-wrap">{{{ log.content }}}</dd>
                 </dl>
             </div>
             <div class="uk-width-medium-1-4 uk-form">
-7                <dl class="uk-description-list">
+                <dl class="uk-description-list">
                     <dt>{{ 'Sent date' | trans }}</dt>
                     <dd>{{ log.sent | date 'medium' }}</dd>
                     <dt>{{ 'Type' | trans }}</dt>

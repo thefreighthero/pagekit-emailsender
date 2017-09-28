@@ -11,7 +11,7 @@
 				<ul class="uk-subnav pk-subnav-icon">
 					<li><a class="pk-icon-delete pk-icon-hover" :title="'Delete' | trans"
 						   data-uk-tooltip="{delay: 500}" @click="removeTexts"
-						   v-confirm="'Delete text?' | trans"></a>
+                           v-if="true" v-confirm="'Delete text?' | trans"></a>
 					</li>
 				</ul>
 			</div>
