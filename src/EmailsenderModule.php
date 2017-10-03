@@ -195,7 +195,10 @@ class EmailsenderModule extends Module {
             $message->send($errors);
 
         } catch (\Swift_SwiftException $e) {
-            throw new EmailsenderException($e->getMessage(), $e->getCode(), $e);
+            //todo detect dev env properly
+            if (empty($_SERVER['WINDIR'])) {
+                throw new EmailsenderException($e->getMessage(), $e->getCode(), $e);
+            }
         }
 
         //todo detect dev env properly
