@@ -39,7 +39,12 @@ class EmailText implements \JsonSerializable {
 	 */
 	protected $emailtype;
 
-	/**
+    /** @var array */
+    protected static $properties = [
+        'type_label' => 'getEmailtypeLabel'
+    ];
+
+    /**
 	 * @return Emailtype
 	 */
 	public function getEmailtype () {
@@ -47,6 +52,13 @@ class EmailText implements \JsonSerializable {
 			$this->emailtype = App::get('emailtypes')->get($this->type);
 		}
 		return $this->emailtype;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getEmailtypeLabel () {
+		return $this->getEmailtype()->label;
 	}
 
 	/**
