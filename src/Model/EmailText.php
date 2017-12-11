@@ -5,7 +5,6 @@ namespace Bixie\Emailsender\Model;
 
 use Pagekit\Application as App;
 use Bixie\Emailsender\Emailtype\Emailtype;
-use Pagekit\Database\ORM\ModelTrait;
 use Pagekit\System\Model\DataModelTrait;
 use Pagekit\User\Model\AccessModelTrait;
 use Pagekit\Util\Arr;
@@ -15,7 +14,7 @@ use Pagekit\Util\Arr;
  */
 class EmailText implements \JsonSerializable {
 
-	use AccessModelTrait, DataModelTrait, ModelTrait;
+	use AccessModelTrait, DataModelTrait, EmailTextTrait;
 
 	/** @Column(type="integer") @Id */
 	public $id;

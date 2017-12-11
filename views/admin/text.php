@@ -1,18 +1,18 @@
 <?php
 $view->style('codemirror');
-$view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', ['vue', 'editor']); ?>
+$view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', ['bixie-pkframework', 'editor']); ?>
 
 <div id="text-edit" v-cloak>
 	<form class="uk-form" v-validator="form" @submit.prevent="save | valid">
 
 		<div class="uk-margin uk-flex uk-flex-space-between uk-flex-wrap" data-uk-margin>
-			<div data-uk-margin>
+			<div>
 
 				<h2 class="uk-margin-remove" v-if="text.id">{{ 'Edit text' | trans }}</h2>
 				<h2 class="uk-margin-remove" v-else>{{ 'Add text' | trans }}</h2>
 
 			</div>
-			<div data-uk-margin>
+			<div>
 
 				<a class="uk-button uk-margin-small-right" :href="$url.route('admin/emailsender')">{{ text.id ?
 					'Close' :
@@ -55,7 +55,7 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 				</div>
 
 
-				<div class="uk-form-row">
+				<div class="uk-form-row uk-form-stacked">
 					<label for="form-title" class="uk-form-subject">{{ 'Subject' | trans }}</label>
 					<div class="uk-form-controls">
 						<input id="form-subject" class="uk-form-large uk-width-1-1" type="text" name="subject"
@@ -64,13 +64,21 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 					</div>
 				</div>
 
-				<div class="uk-form-row">
+				<div class="uk-form-row uk-form-stacked">
 					<span class="uk-form-label">{{ 'Content' | trans }}</span>
 
 					<div class="uk-form-controls">
 						<v-editor id="text-content" :value.sync="text.content"
 								  :options="{markdown : text.data.markdown}"></v-editor>
 					</div>
+				</div>
+
+				<div class="uk-form-row uk-form-horizontal">
+					<span class="uk-form-label">{{ 'Attachment' | trans }}</span>
+
+					<div class="uk-form-controls">
+                        <input-file :file.sync="text.data.file" root="storage" :ext="['pdf','docx','doc','xls','xlsx']"></input-file>
+                    </div>
 				</div>
 
 
@@ -123,7 +131,7 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 
 
 			</div>
-			
+
 		</div>
 
 	</form>

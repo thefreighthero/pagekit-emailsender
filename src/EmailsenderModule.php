@@ -128,6 +128,10 @@ class EmailsenderModule extends Module {
 	 * @throws EmailsenderException
 	 */
 	public function sendMail (EmailText $text, $mail = []) {
+	    $files = Arr::get($mail, 'files', []);
+	    if ($file = $text->get('file')) {
+            $files[] = $file;
+        }
 		$mail = [
 			'from_name' => $text->get('from_name'),
 			'from_email' => $text->get('from_email'),
@@ -137,8 +141,8 @@ class EmailsenderModule extends Module {
 			'subject' => Arr::get($mail, 'subject') ? : $text->getSubject(),
 			'content' => Arr::get($mail, 'content') ? : $text->getContent(),
 			'string_attachments' => Arr::get($mail, 'string_attachments') ? : [],
-			'files' => Arr::get($mail, 'files') ? : [],
-			'data' => array_merge(['attachments' => []], Arr::get($mail, 'data') ? : []),
+			'files' => $files,
+			'data' => array_merge(['attachments' => []], Arr::get($mail, 'data', [])),
 			'ext_key' => Arr::get($mail, 'ext_key') ? : ''
 		];
 
