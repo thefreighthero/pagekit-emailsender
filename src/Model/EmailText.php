@@ -58,7 +58,7 @@ class EmailText implements \JsonSerializable {
 	 * @return string
 	 */
 	public function getEmailtypeLabel () {
-		return $this->getEmailtype()->label;
+		return $this->getEmailtype() ? $this->getEmailtype()->label : '';
 	}
 
 	/**
