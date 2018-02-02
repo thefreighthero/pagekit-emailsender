@@ -1,30 +1,31 @@
-module.exports = {
+/*global _, Vue*/
+
+// @vue/component
+const vm = {
 
     el: '#emailsender-settings',
 
-    data: function () {
-        return _.merge({
-            config: {},
-            form: {}
-        }, window.$data);
-    },
+    name: 'EmailsenderSettings',
+
+    data: () => _.merge({
+        config: {},
+        form: {},
+    }, window.$data),
 
     methods: {
 
-        save: function () {
-            this.$http.post('admin/emailsender/config', { config: this.config }).then(function () {
+        save() {
+            this.$http.post('admin/emailsender/config', { config: this.config, }).then(() => {
                 this.$notify('Settings saved.');
-            }, function (res) {
-                this.$notify(res.data, 'danger');
-            });
+            }, res => this.$notify(res.data, 'danger'));
         },
 
-        addParameter: function () {
-            this.config.url_parameters.push({key: '', value: ''});
-        }
+        addParameter() {
+            this.config.url_parameters.push({key: '', value: '',});
+        },
 
-    }
+    },
 
 };
 
-Vue.ready(module.exports);
+Vue.ready(vm);
