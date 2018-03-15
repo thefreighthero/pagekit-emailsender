@@ -128,6 +128,7 @@ class EmailsenderModule extends Module {
 	 * @throws EmailsenderException
 	 */
 	public function sendMail (EmailText $text, $mail = []) {
+        $errors = [];
 	    $files = Arr::get($mail, 'files', []);
 	    if ($file = $text->get('file')) {
             $files[] = $file;
@@ -195,7 +196,6 @@ class EmailsenderModule extends Module {
                 }
             }
 
-            $errors = [];
             $message->send($errors);
 
         } catch (\Swift_SwiftException $e) {
