@@ -11,6 +11,7 @@ return [
 			$util->createTable('@emailsender_emailtext', function ($table) {
 				$table->addColumn('id', 'integer', ['unsigned' => true, 'length' => 10, 'autoincrement' => true]);
 				$table->addColumn('type', 'string', ['length' => 64]);
+				$table->addColumn('description', 'string', ['length' => 255, 'notnull' => false]);
 				$table->addColumn('subject', 'string', ['length' => 255, 'notnull' => false]);
 				$table->addColumn('content', 'text', ['notnull' => false]);
 				$table->addColumn('roles', 'simple_array', ['notnull' => false]);

@@ -27,6 +27,11 @@ class EmailText implements \JsonSerializable {
 	 * @Column(type="string")
 	 * @var string
 	 */
+	public $description;
+	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
 	public $subject;
 	/**
 	 * @Column(type="string")

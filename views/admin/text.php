@@ -96,7 +96,15 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 					</div>
 				</div>
 
-				<div class="uk-form-row">
+                <div class="uk-form-row uk-form-stacked">
+                    <label for="form-title" class="uk-form-subject">{{ 'Description' | trans }}</label>
+                    <div class="uk-form-controls">
+                        <input id="form-description" class="uk-width-1-1" type="text" name="description"
+                               v-model="text.description" >
+                    </div>
+                </div>
+
+                <div class="uk-form-row">
 					<label for="text-from_name" class="uk-form-label">{{ 'From name' | trans }} *</label>
 					<div class="uk-form-controls">
 						<input id="text-from_name" name="from_name" class="uk-width-1-1" v-model="text.data.from_name" v-validate:required/>

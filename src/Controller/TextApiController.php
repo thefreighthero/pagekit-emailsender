@@ -32,7 +32,7 @@ class TextApiController {
 
         if ($search) {
             $query->where(function ($query) use ($search) {
-                $query->orWhere(['subject LIKE :search', 'content LIKE :search'], ['search' => "%{$search}%"]);
+                $query->orWhere(['description LIKE :search', 'subject LIKE :search', 'content LIKE :search'], ['search' => "%{$search}%"]);
             });
         }
 
@@ -58,7 +58,7 @@ class TextApiController {
 			$text = EmailText::create();
 			unset($data['id']);
 		}
-		
+
 		try {
 
 			$text->save($data);

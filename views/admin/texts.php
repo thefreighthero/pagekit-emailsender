@@ -52,6 +52,7 @@
 				<td><input type="checkbox" name="id" value="{{ text.id }}" number></td>
 				<td>
 					<a :href="$url.route('admin/emailsender/text/edit', { id: text.id })">{{ text.subject }}</a><br/>
+                    <small>{{ text.description }}</small>
 				</td>
 				<td>
 					<em>{{ getTypeLabel(text.type) }}</em>
