@@ -1,9 +1,16 @@
-/*global _, Vue*/
+/*global _, Vue, UIkit*/
+import TextLanguage from '../../components/text-language.vue';
 
 // @vue/component
 const vm = {
 
     el: '#text-edit',
+
+    name: 'Text',
+
+    components: {
+        'text-language': TextLanguage,
+    },
 
     data: () => _.merge({
         text: {
@@ -18,7 +25,9 @@ const vm = {
 
     ready() {
         this.Texts = this.$resource('api/emailsender/text{/id}');
+        this.tab = UIkit.tab(this.$els.tab, {connect: this.$els.content,});
     },
+
 
     computed: {
         keys() {

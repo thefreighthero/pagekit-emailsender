@@ -22,64 +22,76 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 			</div>
 		</div>
 
-		<div class="uk-grid pk-grid-large pk-width-sidebar-large" data-uk-grid-margin>
+        <div class="uk-grid pk-grid-large pk-width-sidebar-large" data-uk-grid-margin>
 			<div class="pk-width-content">
 
-				<div class="uk-form-horizontal uk-margin-bottom">
-					<div class="uk-form-row">
-						<label for="text-to" class="uk-form-label">{{ 'TO addresses' | trans }}</label>
-						<div class="uk-form-controls">
-							<input id="text-to" name="to" class="uk-form-width-large"
-								   :placeholder="'Separated by &quot;;&quot;' | trans"
-								   v-model="text.data.to"/>
-						</div>
-					</div>
+                <ul class="uk-tab" v-el:tab>
+                    <li><a>{{ 'General' | trans }}</a></li>
+                    <li><a>{{ 'Translation' | trans }}</a></li>
+                </ul>
 
-					<div class="uk-form-row">
-						<label for="text-cc" class="uk-form-label">{{ 'CC addresses' | trans }}</label>
-						<div class="uk-form-controls">
-							<input id="text-cc" name="cc" class="uk-form-width-large"
-								   :placeholder="'Separated by &quot;;&quot;' | trans"
-								   v-model="text.data.cc"/>
-						</div>
-					</div>
+                <div class="uk-switcher uk-margin" v-el:content>
+                    <div>
+                        <div class="uk-form-horizontal uk-margin-bottom">
+                            <div class="uk-form-row">
+                                <label for="text-to" class="uk-form-label">{{ 'TO addresses' | trans }}</label>
+                                <div class="uk-form-controls">
+                                    <input id="text-to" name="to" class="uk-form-width-large"
+                                           :placeholder="'Separated by &quot;;&quot;' | trans"
+                                           v-model="text.data.to"/>
+                                </div>
+                            </div>
 
-					<div class="uk-form-row">
-						<label for="text-bcc" class="uk-form-label">{{ 'BCC addresses' | trans }}</label>
-						<div class="uk-form-controls">
-							<input id="text-bcc" name="bcc" class="uk-form-width-large"
-								   :placeholder="'Separated by &quot;;&quot;' | trans"
-								   v-model="text.data.bcc"/>
-						</div>
-					</div>
-				</div>
+                            <div class="uk-form-row">
+                                <label for="text-cc" class="uk-form-label">{{ 'CC addresses' | trans }}</label>
+                                <div class="uk-form-controls">
+                                    <input id="text-cc" name="cc" class="uk-form-width-large"
+                                           :placeholder="'Separated by &quot;;&quot;' | trans"
+                                           v-model="text.data.cc"/>
+                                </div>
+                            </div>
+
+                            <div class="uk-form-row">
+                                <label for="text-bcc" class="uk-form-label">{{ 'BCC addresses' | trans }}</label>
+                                <div class="uk-form-controls">
+                                    <input id="text-bcc" name="bcc" class="uk-form-width-large"
+                                           :placeholder="'Separated by &quot;;&quot;' | trans"
+                                           v-model="text.data.bcc"/>
+                                </div>
+                            </div>
+                        </div>
 
 
-				<div class="uk-form-row uk-form-stacked">
-					<label for="form-title" class="uk-form-subject">{{ 'Subject' | trans }}</label>
-					<div class="uk-form-controls">
-						<input id="form-subject" class="uk-form-large uk-width-1-1" type="text" name="subject"
-							   v-model="text.subject" v-validate:required>
-						<p class="uk-form-help-block uk-text-danger" v-show="form.subject.invalid">{{ 'Subject cannot be blank.' | trans }}</p>
-					</div>
-				</div>
+                        <div class="uk-form-row uk-form-stacked">
+                            <label for="form-title" class="uk-form-subject">{{ 'Subject' | trans }}</label>
+                            <div class="uk-form-controls">
+                                <input id="form-subject" class="uk-form-large uk-width-1-1" type="text" name="subject"
+                                       v-model="text.subject" v-validate:required>
+                                <p class="uk-form-help-block uk-text-danger" v-show="form.subject.invalid">{{ 'Subject cannot be blank.' | trans }}</p>
+                            </div>
+                        </div>
 
-				<div class="uk-form-row uk-form-stacked">
-					<span class="uk-form-label">{{ 'Content' | trans }}</span>
+                        <div class="uk-form-row uk-form-stacked">
+                            <span class="uk-form-label">{{ 'Content' | trans }}</span>
 
-					<div class="uk-form-controls">
-						<v-editor id="text-content" :value.sync="text.content"
-								  :options="{markdown : text.data.markdown}"></v-editor>
-					</div>
-				</div>
+                            <div class="uk-form-controls">
+                                <v-editor id="text-content" :value.sync="text.content"
+                                          :options="{markdown : text.data.markdown}"></v-editor>
+                            </div>
+                        </div>
 
-				<div class="uk-form-row uk-form-horizontal">
-					<span class="uk-form-label">{{ 'Attachment' | trans }}</span>
+                        <div class="uk-form-row uk-form-horizontal">
+                            <span class="uk-form-label">{{ 'Attachment' | trans }}</span>
 
-					<div class="uk-form-controls">
-                        <input-file :file.sync="text.data.file" root="storage" :ext="['pdf','docx','doc','xls','xlsx']"></input-file>
+                            <div class="uk-form-controls">
+                                <input-file :file.sync="text.data.file" root="storage" :ext="['pdf','docx','doc','xls','xlsx']"></input-file>
+                            </div>
+                        </div>
                     </div>
-				</div>
+                    <div>
+                        <text-language :text="text"></text-language>
+                    </div>
+                </div>
 
 
 			</div>

@@ -24,7 +24,7 @@ class EmailsenderApiController {
 
 
     /**
-     * @Route("/template", methods="POST")
+     * @Route("/template", methods="POST", defaults={"_translate" = true})
      * @Request({"type": "string", "data": "array", "user_id": "int"}, csrf=true)
      * @param       $type
      * @param array $data
@@ -48,7 +48,7 @@ class EmailsenderApiController {
     }
 
     /**
-     * @Route("/sendmail", methods="POST")
+     * @Route("/sendmail", methods="POST", defaults={"_translate" = true})
      * @Request({"type": "string", "mail": "array", "data": "array", "user_id": "int"}, csrf=true)
      * @param string $type
      * @param array $mail

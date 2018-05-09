@@ -4,6 +4,7 @@ namespace Bixie\Emailsender;
 
 use Bixie\Emailsender\Emailtype\EmailtypeCollection;
 use Bixie\Emailsender\Event\EmailPrepareEvent;
+use Bixie\Emailsender\Event\TranslationsListener;
 use Bixie\Emailsender\Model\EmailLog;
 use Bixie\Emailsender\Model\EmailText;
 use Bixie\Emailsender\Plugin\ImpersonatePlugin;
@@ -21,7 +22,8 @@ class EmailsenderModule extends Module {
 	 */
 	public function main (App $app) {
 		$app->subscribe(
-			new MailImagesPlugin($this->config),
+            new TranslationsListener,
+            new MailImagesPlugin($this->config),
 			new MailLinksPlugin($this->config)
 		);
 
@@ -31,7 +33,19 @@ class EmailsenderModule extends Module {
 				'classes' => ['user' => 'Pagekit\User\Model\User']
 			]
 		]);
-
+        $app->on('boot', function () use ($app) {
+            //register type with languagemanager
+            if (isset($app['translationtypes'])) {
+                $app['translationtypes']->register([
+                    'emailsender.emailtext' => [
+                        'label' => 'Emailsender Emailtext',
+                        'model' => 'Bixie\Emailsender\Model\EmailText',
+                        'event_model' => 'emailsender_emailtext',
+                        'edit_link' => '@emailsender/text/edit',
+                    ],
+                ]);
+            }
+        });
 
     }
 
