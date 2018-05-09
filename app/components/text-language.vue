@@ -37,7 +37,7 @@
                     </div>
 
                     <div class="uk-form-row">
-                        <label class="uk-form-label">{{ 'From name' | trans }} *</label>
+                        <label class="uk-form-label">{{ 'From name' | trans }}</label>
                         <div class="uk-form-controls">
                             <input name="from_name" class="uk-width-1-1" v-model="translations[locale.language].data.from_name"/>
                         </div>
