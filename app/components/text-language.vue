@@ -20,7 +20,7 @@
             <ul id="tab-widget-languages" class="uk-switcher uk-margin uk-form-stacked">
                 <li v-for="locale in language_tabs">
                     <div class="uk-form-row uk-form-horizontal">
-                        <label class="uk-form-label">{{ 'Title' | trans }}</label>
+                        <label class="uk-form-label">{{ 'Subject' | trans }}</label>
 
                         <div class="uk-form-controls">
                             <input class="uk-width-1-1 uk-form-large" type="text"
