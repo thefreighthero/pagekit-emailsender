@@ -2,10 +2,10 @@
 
 namespace Bixie\Emailsender\Plugin;
 
+use Bixie\Emailsender\Model\EmailText;
 use Pagekit\Application as App;
 use Pagekit\Event\EventSubscriberInterface;
 use Bixie\Emailsender\Event\EmailPrepareEvent;
-use Pagekit\Mail\Message;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class MailLinksPlugin implements EventSubscriberInterface {
@@ -29,24 +29,24 @@ class MailLinksPlugin implements EventSubscriberInterface {
 	 */
 	public function onEmailPrepare (EmailPrepareEvent $event) {
 
-		$content = $this->replaceLinkHrefs($event->getContent(), $event->getMessage());
+		$content = $this->replaceLinkHrefs($event->getContent(), $event->getText());
 
 		$event->setContent($content);
 	}
 
 	/**
 	 * @param         $content
-	 * @param Message $message
+	 * @param EmailText $text
 	 * @return string
 	 */
-	protected function replaceLinkHrefs ($content, Message $message) {
+	protected function replaceLinkHrefs ($content, EmailText $text) {
 		try {
 			$doc = new \DOMDocument();
 			$doc->loadHTML($content);
 			$tags = $doc->getElementsByTagName('a');
 			$site_base = App::url()->get('', [], UrlGenerator::ABSOLUTE_URL);
-			$params = array_reduce($this->config['url_parameters'], function ($params, $param) {
-				$params[$param['key']] = $param['value'];
+			$params = array_reduce($this->config['url_parameters'], function ($params, $param) use ($text) {
+				$params[$param['key']] = $param['value'] == '$$text.type$$' ? $text->type : $param['value'];
 				return $params;
 			}, []);
 			foreach ($tags as $tag) {

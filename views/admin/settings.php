@@ -66,11 +66,14 @@
 
 		<div class="uk-form-row">
 			<span class="uk-form-label">{{ 'URL parameters' | trans }}</span>
-			<div class="uk-form-controls">
-				<label for="text-add_url_params" class="uk-form-label">
+			<div class="uk-form-controls uk-form-controls-text">
+				<label for="text-add_url_params" class="uk-form-label" style="width: 100%">
 					<input id="text-add_url_params" type="checkbox" name="add_url_params"
 						   v-model="config.add_url_params"/> {{ 'Add parameters to all links in email' | trans }}
 				</label>
+                <p class="uk-form-help-block">
+                    {{ 'Add the string `$$text.type$$` to add template type to value.' | trans }}
+                </p>
 			</div>
 		</div>
 
