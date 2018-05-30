@@ -178,7 +178,8 @@ class EmailsenderModule extends Module {
 
             //apply template and check images and links
             $mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
-                'mailContent' => nl2br($mail['content'])
+                'mailContent' => nl2br($mail['content']),
+                'plainText' => substr(strip_tags($mail['content']), 0, 100),
             ]);
             $mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message, $text))->getContent();
             $message->setBody($mailContent, 'text/html');
