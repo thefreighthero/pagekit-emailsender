@@ -7,7 +7,7 @@ use Bixie\Emailsender\Model\EmailLog;
 
 /**
  * @Route("log", name="log")
- * @Access("emailsender: manage logs")
+ * @Access("emailsender: view logs")
  */
 class LogApiController {
 
@@ -54,7 +54,6 @@ class LogApiController {
 	}
 
 	/**
-	 * @Access("emailsender: manage logs")
 	 * @Route("/detail")
 	 * @Request({"log_id"}, csrf=true)
 	 */
@@ -68,6 +67,7 @@ class LogApiController {
 	}
 
 	/**
+     * @Access("emailsender: manage logs")
 	 * @Route("/{id}", methods="DELETE", requirements={"id"="\d+"})
 	 * @Request({"id": "int"}, csrf=true)
 	 */
@@ -81,6 +81,7 @@ class LogApiController {
 	}
 
 	/**
+     * @Access("emailsender: manage logs")
 	 * @Route("/bulk", methods="DELETE")
 	 * @Request({"ids": "array"}, csrf=true)
 	 */

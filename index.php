@@ -95,6 +95,10 @@ return [
 			'title' => 'Manage texts',
 		],
 
+		'emailsender: view logs' => [
+			'title' => 'View logs',
+		],
+
 		'emailsender: manage logs' => [
 			'title' => 'Manage logs',
 		],
