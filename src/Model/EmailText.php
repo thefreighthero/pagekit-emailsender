@@ -136,11 +136,16 @@ class EmailText implements \JsonSerializable {
 	 */
 	public function replaceString ($string, $data, $arraySeparator = ', ') {
 
-		$string = preg_replace_callback('/\$\$(.+?)\$\$/is', function($matches) use ($data, $arraySeparator) {
-			$key = trim($matches[1]);
-			$value = Arr::get($data, $key, '');
-			return is_array($value) ? implode($arraySeparator, $value) : $value;
-		}, $string);
+        $string = preg_replace_callback('/\$\$(.+?)\$\$/is', function($matches) use ($data, $arraySeparator) {
+            $key = trim($matches[1]);
+            $value = Arr::get($data, $key, '');
+            if (is_array($value)) {
+                $value = implode($arraySeparator, $value);
+            } elseif(is_bool($value)) {
+                $value = $value ? __('Yes') : __('No');
+            }
+            return  $value;
+        }, $string);
 
 		return $string;
 	}
