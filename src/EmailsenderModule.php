@@ -148,8 +148,8 @@ class EmailsenderModule extends Module {
             $files[] = $file;
         }
 		$mail = [
-			'from_name' => $text->get('from_name'),
-			'from_email' => $text->get('from_email'),
+			'from_name' => Arr::get($mail, 'from_name') ? : $text->getFromName(),
+			'from_email' => Arr::get($mail, 'from_email') ? : $text->getFromEmail(),
 			'recipients' => $text->getTo(Arr::get($mail, 'to', [])),
 			'cc' => $text->getCc(Arr::get($mail, 'cc', [])),
 			'bcc' => $text->getBcc(Arr::get($mail, 'bcc', [])),
@@ -166,7 +166,7 @@ class EmailsenderModule extends Module {
 		}
 
 		//setting from on the message is overridden by system ImpersonatePlugin
-        App::mailer()->registerPlugin(new ImpersonatePlugin($text->get('from_email'), $text->get('from_name')));
+        App::mailer()->registerPlugin(new ImpersonatePlugin($mail['from_email'], $mail['from_name']));
 
 		$mail['content'] = App::content()->applyPlugins($mail['content'], ['markdown' => true]);
 

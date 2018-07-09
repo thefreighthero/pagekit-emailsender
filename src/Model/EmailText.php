@@ -90,6 +90,28 @@ class EmailText implements \JsonSerializable {
 	}
 
 	/**
+     * @param bool $replace
+	 * @return string
+	 */
+	public function getFromName ($replace = true) {
+        if ($replace) {
+            return $this->replaceString($this->get('from_name', ''), $this->emailtype->getVars());
+        }
+        return $this->get('from_name', '');
+    }
+
+	/**
+     * @param bool $replace
+	 * @return string
+	 */
+	public function getFromEmail ($replace = true) {
+        if ($replace) {
+            return $this->replaceString($this->get('from_email', ''), $this->emailtype->getVars());
+        }
+        return $this->get('from_email', '');
+    }
+
+	/**
 	 * @param bool $replace
 	 * @return string
 	 */
