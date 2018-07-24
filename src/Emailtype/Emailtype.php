@@ -98,10 +98,10 @@ class Emailtype implements \JsonSerializable {
 			foreach ($this->classes as $key => $class) {
 				if (!isset($this->objects[$key]) && class_exists($class)) {
                     $data = isset($this->object_data[$key]) ? $this->object_data[$key] : [];
-					$object = method_exists($class, 'create') ? $class::create($data) : new $class();
+					$object = method_exists($class, 'create') ? $class::create((array)$data) : new $class();
 					$this->addData($key, $object);
 				}
-				if (isset($this->objects[$key])) { 
+				if (isset($this->objects[$key])) {
 					//get data via jsonSerialize
 					$this->vars[$key] = json_decode(json_encode($this->objects[$key], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT), true);
 				}
