@@ -76,7 +76,7 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 
                             <div class="uk-form-controls">
                                 <v-editor id="text-content" :value.sync="text.content"
-                                          :options="{markdown : text.data.markdown}"></v-editor>
+                                          :options="{markdown: text.data.markdown, mdparser: $marked}"></v-editor>
                             </div>
                         </div>
 

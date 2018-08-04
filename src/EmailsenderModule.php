@@ -168,7 +168,7 @@ class EmailsenderModule extends Module {
 		//setting from on the message is overridden by system ImpersonatePlugin
         App::mailer()->registerPlugin(new ImpersonatePlugin($mail['from_email'], $mail['from_name']));
 
-		$mail['content'] = App::content()->applyPlugins($mail['content'], ['markdown' => true]);
+		$mail['content'] = App::content()->applyPlugins($mail['content'], ['markdown' => ['breaks' => true,]]);
 
         //Swift can throw exceptions on validating the addresses
         try {
@@ -178,7 +178,7 @@ class EmailsenderModule extends Module {
 
             //apply template and check images and links
             $mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
-                'mailContent' => nl2br($mail['content']),
+                'mailContent' => $mail['content'],
                 'plainText' => substr(strip_tags($mail['content']), 0, 100),
             ]);
             $mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message, $text))->getContent();

@@ -23,20 +23,19 @@ const vm = {
         form: {},
     }, window.$data),
 
-    ready() {
-        this.Texts = this.$resource('api/emailsender/text{/id}');
-        this.tab = UIkit.tab(this.$els.tab, {connect: this.$els.content,});
-    },
-
-
     computed: {
         keys() {
             return (this.types[this.text.type] ? this.types[this.text.type].keys : [])
         },
     },
 
-    methods: {
+    ready() {
+        this.Texts = this.$resource('api/emailsender/text{/id}');
+        this.tab = UIkit.tab(this.$els.tab, {connect: this.$els.content,});
+    },
 
+
+    methods: {
         save() {
 
             let data = {text: this.text,};
