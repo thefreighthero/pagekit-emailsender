@@ -97,7 +97,7 @@ class EmailText implements \JsonSerializable {
 	 */
 	public function getFromName ($replace = true) {
         if ($replace) {
-            return $this->replaceString($this->get('from_name', ''), $this->emailtype->getVars());
+            return $this->replaceString($this->get('from_name', ''), $this->emailtype->getVars(false));
         }
         return $this->get('from_name', '');
     }
@@ -108,7 +108,7 @@ class EmailText implements \JsonSerializable {
 	 */
 	public function getFromEmail ($replace = true) {
         if ($replace) {
-            return $this->replaceString($this->get('from_email', ''), $this->emailtype->getVars());
+            return $this->replaceString($this->get('from_email', ''), $this->emailtype->getVars(false));
         }
         return $this->get('from_email', '');
     }
@@ -119,7 +119,7 @@ class EmailText implements \JsonSerializable {
 	 */
 	public function getSubject ($replace = true) {
 		if ($replace) {
-			$this->subject = $this->replaceString($this->subject, $this->emailtype->getVars());
+			$this->subject = $this->replaceString($this->subject, $this->emailtype->getVars(false));
 		}
 		return $this->subject;
 	}
@@ -142,10 +142,10 @@ class EmailText implements \JsonSerializable {
 	 */
 	protected function mergeEmails ($mail1 = [], $mail2 = []) {
 		if (is_string($mail1)) {
-			$mail1 = array_map('trim', explode(';', $this->replaceString($mail1, $this->emailtype->getVars())));
+			$mail1 = array_map('trim', explode(';', $this->replaceString($mail1, $this->emailtype->getVars(false))));
 		}
 		if (is_string($mail2)) {
-			$mail2 = array_map('trim', explode(';', $this->replaceString($mail2, $this->emailtype->getVars())));
+			$mail2 = array_map('trim', explode(';', $this->replaceString($mail2, $this->emailtype->getVars(false))));
 		}
 		return array_filter(array_unique(array_merge((array)$mail1, (array)$mail2)), function ($email) {
 		    return !empty($email);
@@ -161,17 +161,20 @@ class EmailText implements \JsonSerializable {
 	public function replaceString ($string, $data, $arraySeparator = ', ') {
 
 	    //replace legacy vars `$$ foo.bar $$`
-        $flattened  = Arr::flatten($data);
-        $string = preg_replace_callback('/\$\$(.+?)\$\$/is', function($matches) use ($flattened, $arraySeparator) {
-            $key = trim($matches[1]);
-            $value = Arr::get($flattened, $key, '');
-            if (is_array($value)) {
-                $value = implode($arraySeparator, $value);
-            } elseif(is_bool($value)) {
-                $value = $value ? __('Yes') : __('No');
-            }
-            return  $value;
-        }, $string);
+        $pattern = '/\$\$(.+?)\$\$/is';
+        if (preg_match($pattern, $string)) {
+            $flattened = Arr::flatten($data);
+            $string = preg_replace_callback($pattern, function ($matches) use ($flattened, $arraySeparator) {
+                $key = trim($matches[1]);
+                $value = Arr::get($flattened, $key, '');
+                if (is_array($value)) {
+                    $value = implode($arraySeparator, $value);
+                } elseif (is_bool($value)) {
+                    $value = $value ? __('Yes') : __('No');
+                }
+                return $value;
+            }, $string);
+        }
 
         $loader = new Twig_Loader_Array([
             'emailtext' => $string,

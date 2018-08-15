@@ -64,10 +64,14 @@ class TextApiController {
 		//test Twig syntax
         $loader = new Twig_Loader_Array([
             'emailtext' => $data['content'],
+            'subject' => $data['subject'],
+            'adresses' => $data['data']['from_email'] . $data['data']['from_name'] . $data['data']['to'] . $data['data']['cc'] . $data['data']['bcc'],
         ]);
         try {
             $twig = new Twig_Environment($loader);
-            $twig->render('emailtext', $data);
+            $twig->render('emailtext', []);
+            $twig->render('subject', []);
+            $twig->render('adresses', []);
         } catch (\Twig_Error_Loader $e) {
             App::abort(400, 'Error in template loader: ' . $e->getMessage());
         } catch (\Twig_Error_Runtime $e) {
