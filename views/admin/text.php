@@ -145,7 +145,7 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 				<h3>{{ 'Available variables' | trans }}</h3>
 				<ul class="uk-list">
 					<li v-for="key in keys">
-						<kbd>$${{ key }}$$</kbd>
+						<kbd>{{ `\{\{${key}\}\}` }}</kbd>
 					</li>
 				</ul>
 

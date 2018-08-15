@@ -5,6 +5,8 @@ namespace Bixie\Emailsender\Controller;
 use Pagekit\Application as App;
 use Pagekit\Application\Exception;
 use Bixie\Emailsender\Model\EmailText;
+use Twig_Environment;
+use Twig_Loader_Array;
 
 /**
  * @Route("text", name="text")
@@ -59,7 +61,23 @@ class TextApiController {
 			unset($data['id']);
 		}
 
-		try {
+		//test Twig syntax
+        $loader = new Twig_Loader_Array([
+            'emailtext' => $data['content'],
+        ]);
+        try {
+            $twig = new Twig_Environment($loader);
+            $twig->render('emailtext', $data);
+        } catch (\Twig_Error_Loader $e) {
+            App::abort(400, 'Error in template loader: ' . $e->getMessage());
+        } catch (\Twig_Error_Runtime $e) {
+            App::abort(400, 'Error in template parsing: ' . $e->getMessage());
+        } catch (\Twig_Error_Syntax $e) {
+            App::abort(400, 'Error in template syntax: ' . $e->getMessage());
+        }
+
+
+        try {
 
 			$text->save($data);
 

@@ -88,10 +88,11 @@ class Emailtype implements \JsonSerializable {
 		return $this;
 	}
 
-	/**
+    /**
      * Process objects and values to replacable vars
-	 * @return array
-	 */
+     * @param bool $flat
+     * @return array
+     */
 	public function getVars ($flat = true) {
 		if (!isset($this->vars)) {
 			$this->vars = [];
@@ -110,7 +111,7 @@ class Emailtype implements \JsonSerializable {
 				$this->vars['values'][$key] = $value;
 			}
 		}
-		return Arr::flatten($this->vars);
+		return $flat ? Arr::flatten($this->vars) : $this->vars;
 	}
 
 	/**

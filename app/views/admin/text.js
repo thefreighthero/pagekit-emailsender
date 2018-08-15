@@ -42,7 +42,7 @@ const vm = {
 
             this.$broadcast('save', data);
 
-            this.Texts.save({id: this.text.id,}, data).then(function (res) {
+            this.Texts.save({id: this.text.id,}, data).then(res => {
                 data = res.data;
                 if (!this.text.id) {
                     window.history.replaceState({}, '', this.$url.route('admin/emailsender/text/edit', {id: data.text.id,}));
@@ -52,8 +52,8 @@ const vm = {
 
                 this.$notify(this.$trans('Text %subject% saved.', {subject: this.text.subject,}));
 
-            }, function (data) {
-                this.$notify(data, 'danger');
+            }, res => {
+                this.$notify((res.data.message || res.data), 'danger');
             });
         },
 

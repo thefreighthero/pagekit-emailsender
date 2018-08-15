@@ -8,6 +8,8 @@ use Bixie\Emailsender\Emailtype\Emailtype;
 use Pagekit\System\Model\DataModelTrait;
 use Pagekit\User\Model\AccessModelTrait;
 use Pagekit\Util\Arr;
+use Twig_Environment;
+use Twig_Loader_Array;
 
 /**
  * @Entity(tableClass="@emailsender_emailtext",eventPrefix="emailsender_emailtext")
@@ -128,7 +130,7 @@ class EmailText implements \JsonSerializable {
 	 */
 	public function getContent ($replace = true) {
 		if ($replace) {
-			$this->content = $this->replaceString($this->content, $this->emailtype->getVars());
+			$this->content = $this->replaceString($this->content, $this->emailtype->getVars(false));
 		}
 		return $this->content;
 	}
@@ -158,9 +160,11 @@ class EmailText implements \JsonSerializable {
 	 */
 	public function replaceString ($string, $data, $arraySeparator = ', ') {
 
-        $string = preg_replace_callback('/\$\$(.+?)\$\$/is', function($matches) use ($data, $arraySeparator) {
+	    //replace legacy vars `$$ foo.bar $$`
+        $flattened  = Arr::flatten($data);
+        $string = preg_replace_callback('/\$\$(.+?)\$\$/is', function($matches) use ($flattened, $arraySeparator) {
             $key = trim($matches[1]);
-            $value = Arr::get($data, $key, '');
+            $value = Arr::get($flattened, $key, '');
             if (is_array($value)) {
                 $value = implode($arraySeparator, $value);
             } elseif(is_bool($value)) {
@@ -169,7 +173,17 @@ class EmailText implements \JsonSerializable {
             return  $value;
         }, $string);
 
-		return $string;
+        $loader = new Twig_Loader_Array([
+            'emailtext' => $string,
+        ]);
+        try {
+            $twig = new Twig_Environment($loader);
+
+            $string = $twig->render('emailtext', $data);
+
+        } catch (\Twig_Error $e) {}
+
+        return $string;
 	}
 
 
