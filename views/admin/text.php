@@ -142,6 +142,17 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
 					</div>
 				</div>
 
+                <h3>{{ 'Template logic' | trans }}</h3>
+
+                <dl>
+                    <dt>{{ 'Simple ternary operator' | trans }}</dt>
+                    <dd><kbd>{{ `\{\{ data.key ? 'Yes' : 'No' \}\}` }}</kbd></dd>
+                    <dt>{{ 'Conditional content' | trans }}</dt>
+                    <dd><kbd>{{ `\{% if data.key %\}` }} Content {{ `\{% endif %\}` }}</kbd></dd>
+                    <dt>{{ 'Iteration' | trans }}</dt>
+                    <dd><kbd>{{ `\{% for item in items %\}` }} Content {{ `\{\{ item.name \}\}` }} {{ `\{% endfor %\}` }}</kbd></dd>
+                </dl>
+
 				<h3>{{ 'Available variables' | trans }}</h3>
 				<ul class="uk-list">
 					<li v-for="key in keys">
