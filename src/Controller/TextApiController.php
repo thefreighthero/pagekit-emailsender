@@ -62,10 +62,16 @@ class TextApiController {
 		}
 
 		//test Twig syntax
+        $addressesTemplates = '';
+        foreach (['from_email', 'from_name', 'to', 'cc', 'bcc',] as $key) {
+            if (!empty($data['data'][$key])) {
+                $addressesTemplates .= $data['data'][$key];
+            }
+		}
         $loader = new Twig_Loader_Array([
             'emailtext' => $data['content'],
             'subject' => $data['subject'],
-            'adresses' => $data['data']['from_email'] . $data['data']['from_name'] . $data['data']['to'] . $data['data']['cc'] . $data['data']['bcc'],
+            'adresses' => $addressesTemplates,
         ]);
         try {
             $twig = new Twig_Environment($loader);
