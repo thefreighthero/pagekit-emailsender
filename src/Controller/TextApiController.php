@@ -85,6 +85,13 @@ class TextApiController {
         } catch (\Twig_Error_Syntax $e) {
             App::abort(400, 'Error in template syntax: ' . $e->getMessage());
         }
+        //test DOM
+        try {
+            $doc = new \DOMDocument();
+            $doc->loadHTML(str_replace('&', '&amp;', $data['content']));
+        } catch (\Exception $e) {
+            App::abort(400, 'Error in HTML syntax: ' . $e->getMessage());
+        }
 
 
         try {
