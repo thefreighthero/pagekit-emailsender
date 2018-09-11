@@ -168,7 +168,9 @@ class EmailsenderModule extends Module {
 		//setting from on the message is overridden by system ImpersonatePlugin
         App::mailer()->registerPlugin(new ImpersonatePlugin($mail['from_email'], $mail['from_name']));
 
-		$mail['content'] = App::content()->applyPlugins($mail['content'], ['markdown' => ['breaks' => true,]]);
+		$mail['content'] = App::content()->applyPlugins($mail['content'], [
+		    'markdown' => ['gfm' => true,],
+        ]);
 
         //Swift can throw exceptions on validating the addresses
         try {
