@@ -1,6 +1,6 @@
 <?php $view->script('texts-emailsender', 'bixie/emailsender:app/bundle/emailsender-texts.js', ['vue']) ?>
 
-<div id="emailsender-texts" class="uk-text uk-form-horizontal" v-cloak>
+<div id="emailsender-texts" class="uk-form uk-form-horizontal" v-cloak>
 
 	<div class="uk-margin uk-flex uk-flex-space-between uk-flex-wrap" data-uk-margin>
 		<div class="uk-flex uk-flex-middle uk-flex-wrap" data-uk-margin>
