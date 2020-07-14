@@ -33,6 +33,7 @@ class TextController {
 		if (!$text) {
 			App::abort(404, __('Text not found.'));
 		}
+
         $return = [
             '$view' => [
                 'title' => __('Text'),
