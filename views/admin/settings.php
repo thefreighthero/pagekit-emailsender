@@ -18,15 +18,25 @@
 
 	<div class="uk-form-horizontal">
 
-		<div class="uk-form-row">
-			<span class="uk-form-label">{{ 'Logs' | trans }}</span>
-			<div class="uk-form-controls">
-				<label for="text-save_logs" class="uk-form-label">
-					<input id="text-save_logs" type="checkbox" name="save_logs"
-						   v-model="config.save_logs"/> {{ 'Save logs' | trans }}
-				</label>
-			</div>
-		</div>
+        <div class="uk-form-row">
+            <span class="uk-form-label">{{ 'Use Brevo' | trans }}</span>
+            <div class="uk-form-controls">
+                <label for="text-use_brevo" class="uk-form-label">
+                    <input id="text-use_brevo" type="checkbox" name="use_brevo"
+                           v-model="config.use_brevo"/> {{ 'Use Brevo for transactional mails' | trans }}
+                </label>
+            </div>
+        </div>
+
+        <div class="uk-form-row">
+            <span class="uk-form-label">{{ 'Logs' | trans }}</span>
+            <div class="uk-form-controls">
+                <label for="text-save_logs" class="uk-form-label">
+                    <input id="text-save_logs" type="checkbox" name="save_logs"
+                           v-model="config.save_logs"/> {{ 'Save logs' | trans }}
+                </label>
+            </div>
+        </div>
 
 		<div class="uk-form-row">
 			<label for="text-from_name" class="uk-form-label">{{ 'From name' | trans }}</label>

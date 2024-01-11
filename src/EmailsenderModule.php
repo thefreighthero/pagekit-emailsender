@@ -172,55 +172,69 @@ class EmailsenderModule extends Module {
 		    'markdown' => ['gfm' => true,],
         ]);
 
-        //Swift can throw exceptions on validating the addresses
-        try {
+        /** @var Message $message */
+        $message = App::mailer()->create($mail['subject'], $mail['content'], $mail['recipients']);
 
-            /** @var Message $message */
-            $message = App::mailer()->create($mail['subject'], $mail['content'], $mail['recipients']);
+        //apply template and check images and links
+        $mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
+            'mailContent' => $mail['content'],
+            'plainText' => substr(strip_tags($mail['content']), 0, 100),
+        ]);
+        $mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message, $text))->getContent();
 
-            //apply template and check images and links
-            $mailContent = App::view(sprintf('bixie/emailsender/mails/%s.php', $text->get('template', 'default')), [
-                'mailContent' => $mail['content'],
-                'plainText' => substr(strip_tags($mail['content']), 0, 100),
-            ]);
-            $mailContent = App::trigger(new EmailPrepareEvent('emailsender.prepare', $mailContent, $message, $text))->getContent();
-            $message->setBody($mailContent, 'text/html');
+        // Use brevo for mails or just juse good old Swiftmailer
+        if ($this->config('use_brevo', false)) {
 
-            if (!empty($mail['cc'])) {
-                $message->setCc($mail['cc']);
-            }
-            if (!empty($mail['bcc'])) {
-                $message->setBcc($mail['bcc']);
-            }
+            $sendinblue = App::module('sendinblue');
+            $errors = $sendinblue->sendMail($mail, $mailContent);
 
-            if (!empty($mail['string_attachments'])) {
-                foreach ($mail['string_attachments'] as $string_attachment) {
-                    $message->attachData($string_attachment['data'], $string_attachment['name'], Arr::get($string_attachment, 'mime'));
-                    $mail['data']['attachments'][] = $string_attachment['name'];
+        // Use Swiftmailer.
+        } else {
+            //Swift can throw exceptions on validating the addresses
+            try {
+
+                $message->setBody($mailContent, 'text/html');
+
+                if (!empty($mail['cc'])) {
+                    $message->setCc($mail['cc']);
                 }
-            }
-            if (!empty($mail['files'])) {
-                foreach ($mail['files'] as $file_path) {
-                    if ($path = $this->normalizePath($file_path) and file_exists($path)) {
-                        $message->attachFile($path, basename($path));
-                        $mail['data']['attachments'][] = basename($path);
+                if (!empty($mail['bcc'])) {
+                    $message->setBcc($mail['bcc']);
+                }
+
+                if (!empty($mail['string_attachments'])) {
+                    foreach ($mail['string_attachments'] as $string_attachment) {
+                        $message->attachData($string_attachment['data'], $string_attachment['name'], Arr::get($string_attachment, 'mime'));
+                        $mail['data']['attachments'][] = $string_attachment['name'];
                     }
                 }
-            }
-            if (!empty($mailImages)) {
-                foreach ($mailImages as $image) {
-                    $message->AddEmbeddedImage($image['path'], $image['name'], $image['filename'], $image['encoding'], $image['mimetype']);
+                if (!empty($mail['files'])) {
+                    foreach ($mail['files'] as $file_path) {
+                        if ($path = $this->normalizePath($file_path) and file_exists($path)) {
+                            $message->attachFile($path, basename($path));
+                            $mail['data']['attachments'][] = basename($path);
+                        }
+                    }
+                }
+                if (!empty($mailImages)) {
+                    foreach ($mailImages as $image) {
+                        $message->AddEmbeddedImage($image['path'], $image['name'], $image['filename'], $image['encoding'], $image['mimetype']);
+                    }
+                }
+
+                $message->send($errors);
+
+            } catch (\Swift_SwiftException $e) {
+                //todo detect dev env properly
+                if (empty($_SERVER['WINDIR'])) {
+                    throw new EmailsenderException($e->getMessage(), $e->getCode(), $e);
                 }
             }
 
-            $message->send($errors);
-
-        } catch (\Swift_SwiftException $e) {
-            //todo detect dev env properly
-            if (empty($_SERVER['WINDIR'])) {
-                throw new EmailsenderException($e->getMessage(), $e->getCode(), $e);
-            }
         }
+
+
+
 
         //todo detect dev env properly
 		if (count($errors) && empty($_SERVER['WINDIR'])) {
