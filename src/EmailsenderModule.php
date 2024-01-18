@@ -147,19 +147,53 @@ class EmailsenderModule extends Module {
 	    if ($file = $text->get('file')) {
             $files[] = $file;
         }
-		$mail = [
-			'from_name' => Arr::get($mail, 'from_name') ? : $text->getFromName(),
-			'from_email' => Arr::get($mail, 'from_email') ? : $text->getFromEmail(),
-			'recipients' => $text->getTo(Arr::get($mail, 'to', [])),
-			'cc' => $text->getCc(Arr::get($mail, 'cc', [])),
-			'bcc' => $text->getBcc(Arr::get($mail, 'bcc', [])),
-			'subject' => Arr::get($mail, 'subject') ? : $text->getSubject(),
-			'content' => Arr::get($mail, 'content') ? : $text->getContent(),
-			'string_attachments' => Arr::get($mail, 'string_attachments') ? : [],
-			'files' => $files,
-			'data' => array_merge(['attachments' => []], Arr::get($mail, 'data', [])),
-			'ext_key' => Arr::get($mail, 'ext_key') ? : ''
-		];
+
+        $to = [];
+        if(isset($mail['to'])) {
+            if($mail['to'] != '') {
+                $to[] = $mail['to'];
+            }
+        } else {
+            $to = $text->getTo();
+        }
+        $text->set('to', $to);
+
+        $cc = [];
+        if(isset($mail['cc'])) {
+            if($mail['cc'] != '') {
+                $cc[] = $mail['cc'];
+            }
+        } else {
+            $cc = $text->getCc();
+        }
+        $text->set('cc', $cc);
+
+        $bcc = [];
+        if(isset($mail['bcc'])) {
+            if($mail['bcc'] != '') {
+                $bcc[] = $mail['bcc'];
+            }
+        } else {
+            $bcc = $text->getBcc();
+        }
+        $text->set('bcc', $bcc);
+
+        $mail = [
+            'from_name' => Arr::get($mail, 'from_name') ? : $text->getFromName(),
+            'from_email' => Arr::get($mail, 'from_email') ? : $text->getFromEmail(),
+            'recipients' => $text->getTo(),
+            'cc' => $text->getCc(),
+            'bcc' => $text->getBcc(),
+//            'recipients' => $text->getTo(Arr::get($mail, 'to', [])),
+//            'cc' => $text->getCc(Arr::get($mail, 'cc', [])),
+//            'bcc' => $text->getBcc(Arr::get($mail, 'bcc', [])),
+            'subject' => Arr::get($mail, 'subject') ? : $text->getSubject(),
+            'content' => Arr::get($mail, 'content') ? : $text->getContent(),
+            'string_attachments' => Arr::get($mail, 'string_attachments') ? : [],
+            'files' => $files,
+            'data' => array_merge(['attachments' => []], Arr::get($mail, 'data', [])),
+            'ext_key' => Arr::get($mail, 'ext_key') ? : ''
+        ];
 
 		if (empty($mail['recipients'])) {
 			throw new EmailsenderException(__('No receivers for email!'));
