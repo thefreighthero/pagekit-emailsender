@@ -43,7 +43,8 @@ class EmailsenderApiController {
             'cc' => $text->getCc(),
             'bcc' => App::user()->hasAccess('emailsender: manage texts') ? $text->getBcc() : '',
             'subject' => $text->getSubject(),
-            'content' => $text->getContent()
+            'content' => $text->getContent(),
+            'template' => strpos($text->getId(), 'brevo-') !== false
         ]];
     }
 

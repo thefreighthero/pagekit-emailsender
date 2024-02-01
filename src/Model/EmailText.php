@@ -51,6 +51,21 @@ class EmailText implements \JsonSerializable {
     ];
 
     /**
+     * @param $data
+     */
+    public function __construct($data) {
+        foreach(['id', 'type', 'description', 'subject', 'content', 'emailtype', 'roles', 'data'] as $field) {
+            if(isset($data[$field])) {
+                $this->$field = $data[$field];
+            }
+        }
+    }
+
+    public function getId () {
+        return $this->id;
+    }
+
+    /**
 	 * @return Emailtype
 	 */
 	public function getEmailtype () {

@@ -10,6 +10,8 @@ use Bixie\Emailsender\Model\EmailText;
 use Bixie\Emailsender\Plugin\ImpersonatePlugin;
 use Bixie\Emailsender\Plugin\MailImagesPlugin;
 use Bixie\Emailsender\Plugin\MailLinksPlugin;
+use Bixie\SendInBlue\Event\EmailTemplateListener;
+use Bixie\SendInBlue\Helpers\BrevoHelper;
 use Pagekit\Application as App;
 use Pagekit\Mail\Message;
 use Pagekit\Module\Module;
@@ -102,6 +104,36 @@ class EmailsenderModule extends Module {
 				$emailType->addData($key, $object);
 			}
 		}
+
+        if(strpos($id, 'brevo-') !== false) {
+
+            $template = BrevoHelper::getEmailTemplate(str_replace('brevo-','', $id));
+
+            $id = 'brevo-' . $template['id'];
+
+            $htmlContent = $template['htmlContent'];
+            // Remove DOCTYPE
+            $htmlContent = preg_replace('/<!DOCTYPE[^>]*>/', '', $htmlContent);
+            // Remove <html> tags
+            $htmlContent = preg_replace('/<\\/?(html)[^>]*>/', '', $htmlContent);
+
+            return new EmailText([
+                'id' => $id,
+                'type' => $id,
+                'description' => $template['name'],
+                'subject' => $template['subject'],
+                'content' => $htmlContent,
+                'emailtype' => $emailType,
+                'data' => [
+                    'html' => true,
+                    'from_email' => $template['sender']['email'],
+                    'from_name' => $template['sender']['name'],
+                    'from_id' => $template['sender']['id'],
+                ],
+            ]);
+
+        }
+
 		return $text;
 	}
 
@@ -132,16 +164,55 @@ class EmailsenderModule extends Module {
 				$emailType->addData($key, $object);
 			}
 		}
+
+
+        /* To do, move to other location */
+        $emailTemplates = BrevoHelper::getEmailTemplates();
+
+        if($emailTemplates['count'] > 0) {
+
+            $emailType = new \Bixie\Emailsender\Emailtype\Emailtype('brevo.email.type', [
+                'name' => 'brevo.email.type',
+                'label' => 'Brevo template',
+            ]);
+            foreach($emailTemplates['templates'] as $template) {
+
+                $htmlContent = $template['htmlContent'];
+                // Remove DOCTYPE
+                $htmlContent = preg_replace('/<!DOCTYPE[^>]*>/', '', $htmlContent);
+                // Remove <html> tags
+                $htmlContent = preg_replace('/<\\/?(html)[^>]*>/', '', $htmlContent);
+
+                $id = 'brevo-' . $template['id'];
+                $texts[$id] = new EmailText([
+                    'id' => $id,
+                    'type' => $id,
+                    'description' => $template['name'],
+                    'subject' => $template['subject'],
+                    'content' => $htmlContent,
+                    'emailtype' => $emailType,
+                    'data' => [
+                        'html' => true,
+                        'from_email' => $template['sender']['email'],
+                        'from_name' => $template['sender']['name'],
+                        'from_id' => $template['sender']['id'],
+                    ],
+                ]);
+            }
+        }
+        /* To do, move to other location */
+
 		return $texts;
 	}
 
 	/**
-	 * @param EmailText $text
-	 * @param array     $mail
+	 * @param EmailText         $text
+     * @param array             $mail
+     * @param boolean|string    $template_id
 	 * @return bool
 	 * @throws EmailsenderException
 	 */
-	public function sendMail (EmailText $text, $mail = []) {
+	public function sendMail (EmailText $text, $mail = [], $template_id = false) {
         $errors = [];
 	    $files = Arr::get($mail, 'files', []);
 	    if ($file = $text->get('file')) {
@@ -220,7 +291,7 @@ class EmailsenderModule extends Module {
         if ($this->config('use_brevo', false)) {
 
             $sendinblue = App::module('sendinblue');
-            $errors = $sendinblue->sendMail($mail, $mailContent);
+            $errors = $sendinblue->sendMail($mail, $mailContent, $template_id);
 
         // Use Swiftmailer.
         } else {
