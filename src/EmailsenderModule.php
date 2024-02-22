@@ -267,6 +267,7 @@ class EmailsenderModule extends Module {
         ];
 
 		if (empty($mail['recipients'])) {
+            return false;
 			throw new EmailsenderException(__('No receivers for email!'));
 		}
 
