@@ -37,7 +37,7 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
                                 <label for="text-to" class="uk-form-label">{{ 'TO addresses' | trans }}</label>
                                 <div class="uk-form-controls">
                                     <input id="text-to" name="to" class="uk-form-width-large"
-                                           :placeholder="'Separated by &quot;;&quot;' | trans"
+                                           :placeholder="'Separated by &quot;,&quot;' | trans"
                                            v-model="text.data.to"/>
                                 </div>
                             </div>
@@ -46,7 +46,7 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
                                 <label for="text-cc" class="uk-form-label">{{ 'CC addresses' | trans }}</label>
                                 <div class="uk-form-controls">
                                     <input id="text-cc" name="cc" class="uk-form-width-large"
-                                           :placeholder="'Separated by &quot;;&quot;' | trans"
+                                           :placeholder="'Separated by &quot;,&quot;' | trans"
                                            v-model="text.data.cc"/>
                                 </div>
                             </div>
@@ -55,7 +55,7 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
                                 <label for="text-bcc" class="uk-form-label">{{ 'BCC addresses' | trans }}</label>
                                 <div class="uk-form-controls">
                                     <input id="text-bcc" name="bcc" class="uk-form-width-large"
-                                           :placeholder="'Separated by &quot;;&quot;' | trans"
+                                           :placeholder="'Separated by &quot;,&quot;' | trans"
                                            v-model="text.data.bcc"/>
                                 </div>
                             </div>
@@ -75,8 +75,20 @@ $view->script('text-edit', 'bixie/emailsender:app/bundle/emailsender-text.js', [
                             <span class="uk-form-label">{{ 'Content' | trans }}</span>
 
                             <div class="uk-form-controls">
-                                <v-editor id="text-content" :value.sync="text.content"
-                                          :options="{markdown: text.data.markdown, mdparser: $marked}"></v-editor>
+
+                                <template v-if="text.data.markdown">
+
+                                    <v-editor id="text-content" :value.sync="text.content"
+                                              :options="{markdown: text.data.markdown, mdparser: $marked}"></v-editor>
+
+                                </template>
+                                <template v-else>
+                                    <v-tfh-editor id="text-content" :value.sync="text.content"></v-tfh-editor>
+
+                                </template>
+                                <p>
+                                    <label><input type="checkbox" v-model="text.data.markdown"> {{ 'Enable Markdown' | trans }}</label>
+                                </p>
                             </div>
                         </div>
 

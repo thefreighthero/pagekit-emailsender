@@ -294,6 +294,20 @@ class EmailsenderModule extends Module {
             $sendinblue = App::module('sendinblue');
             $errors = $sendinblue->sendMail($mail, $mailContent, $template_id);
 
+            // Added for logging
+            if (!empty($mail['string_attachments'])) {
+                foreach ($mail['string_attachments'] as $string_attachment) {
+                    $mail['data']['attachments'][] = $string_attachment['name'];
+                }
+            }
+            if (!empty($mail['files'])) {
+                foreach ($mail['files'] as $file_path) {
+                    if ($path = $this->normalizePath($file_path) and file_exists($path)) {
+                        $mail['data']['attachments'][] = basename($path);
+                    }
+                }
+            }
+
         // Use Swiftmailer.
         } else {
             //Swift can throw exceptions on validating the addresses
