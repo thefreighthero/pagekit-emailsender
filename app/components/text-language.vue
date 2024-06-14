@@ -31,8 +31,21 @@
                         <label class="uk-form-label">{{ 'Content' | trans }}</label>
 
                         <div class="uk-form-controls">
-                            <v-editor :value.sync="translations[locale.language].content"
-                                      :options="{markdown : translations[locale.language].data.content_markdown}"></v-editor>
+
+                            <template v-if="translations[locale.language].markdown">
+
+                                <v-editor :value.sync="translations[locale.language].content"
+                                          :options="{markdown : translations[locale.language].data.content_markdown}"></v-editor>
+
+                            </template>
+                            <template v-else>
+                                <v-tfh-editor :value.sync="translations[locale.language].content"></v-tfh-editor>
+
+                            </template>
+
+                            <p>
+                                <label><input type="checkbox" v-model="translations[locale.language].markdown"> {{ 'Enable Markdown' | trans }}</label>
+                            </p>
                         </div>
                     </div>
 
